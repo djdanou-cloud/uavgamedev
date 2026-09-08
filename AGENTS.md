@@ -26,6 +26,7 @@ You are one of many coding agents working on a Godot 4.7.2 / GDScript / Android-
 | Data | `extends Resource`, `@export var schema_version: int` first, typed fields with defaults, ids as `StringName` equal to the file name |
 | Godot 4 only | no `yield`, `instance()`, string-form `connect`, Godot 3 node names; `Engine.time_scale` never; `get_tree().paused` only for lifecycle/menus |
 | UI | sizes in dp (`CadUiScale`), touch targets ≥ 48 dp, icons 26 dp, strings from `CadStrings.get_text(&"key")` (CSV `ui/strings/cad_strings_en.csv`) |
+| Tests | gdUnit4 suites `extends GdUnitTestSuite` with **no `class_name`**; put `@warning_ignore_start("return_value_discarded")` under the `extends` line — the fluent assertions (`assert_int(x).is_equal(y)`) return the assert object, which our strict gate would otherwise reject. Every other warning, including `untyped_declaration`, stays active in tests |
 | Git | branch `card/<CARD-ID>-<slug>` from `main`; commits `wip(<CARD-ID>): …` at every checkpoint; never push to `main`; squash-merge is the human's job |
 | Secrets | never read, write, or mention keystores, passwords, ad unit ids, or Play Console credentials; if you encounter one, stop and report |
 

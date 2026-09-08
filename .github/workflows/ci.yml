@@ -135,6 +135,17 @@ jobs:
           probe unsafe 'extends RefCounted\n\n\nfunc run(o: Variant) -> void:\n\to.no_such_method()\n' "is not present on the inferred type"
           exit $fail
 
+      - name: gdUnit4 suite
+        # Exit codes are gdUnit4's own: 0 pass, 100 failures, 101 warnings (verified locally 2026-09-08).
+        # --ignoreHeadlessMode is mandatory: headless is refused without it.
+        run: |
+          set -uo pipefail
+          "$GODOT_BIN" --headless --path . -d -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd \
+            --ignoreHeadlessMode -a res://test -rd reports/gdunit -c
+          code=$?
+          echo "gdunit4 exit ${code} (0 pass / 100 failures / 101 warnings)"
+          exit $code
+
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -143,4 +154,5 @@ jobs:
           path: |
             import.log
             probe_*.log
+            reports/
           if-no-files-found: ignore

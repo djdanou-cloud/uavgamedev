@@ -11,7 +11,7 @@
 | Perf regression | x86 sim bench vs baseline; on-device bench scene + wave-12 replay + 20-min soak | `tools/bench_runner.gd`, `scenes/bench/cad_bench_render.tscn`, `CadFrameStats` | every merge to `main` (CI) / every Gate 3 (device) | CI / device | Gate 1 / Gate 3 |
 | On-device manual scripts | per milestone: `docs/qa/manual_android_<ms>.md` — numbered steps, expected result, pass/fail column, device, build hash | human, 20–40 min per device | 1 script per milestone | device | Gate 3 |
 
-Test conventions: file `test_cad_<name>.gd` extends `GdUnitTestSuite`; test names `test_<behaviour>_<condition>()`; Given/When/Then as three comment lines; parameterised tests for tables (`test_pk_lookup(weapon: StringName, threat: StringName, expected: float, test_parameters := [...])`); no test may depend on wall-clock time, `Engine.get_frames_drawn()`, or global RNG; scenario tests always construct `CadSim` with an explicit seed.
+Test conventions: file `test_cad_<name>.gd` extends `GdUnitTestSuite` with no `class_name` (gdUnit4 discovers by path, and a `Test*` name would fail the `.gdlintrc` `^Cad[A-Z]` rule) and carries `@warning_ignore_start("return_value_discarded")` under the `extends` line, because fluent assertions return the assert object (verified 2026-09-08; all other warnings stay Error in tests); test names `test_<behaviour>_<condition>()`; Given/When/Then as three comment lines; parameterised tests for tables (`test_pk_lookup(weapon: StringName, threat: StringName, expected: float, test_parameters := [...])`); no test may depend on wall-clock time, `Engine.get_frames_drawn()`, or global RNG; scenario tests always construct `CadSim` with an explicit seed.
 
 ## G.2 Headless balance-simulation harness (`tools/balance/`)
 

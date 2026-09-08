@@ -1,0 +1,6 @@
+gdUnit4 6.2.1
+source: https://github.com/godot-gdunit-labs/gdUnit4/archive/refs/tags/v6.2.1.zip
+sha256(zip): ffb48847c46f386bf0c7a716fd68c6dace7d67730775cf7f748adce8ef3ed794
+vendored: 2026-09-08 by CAD-FP-003 (the one addon exception granted by that card, A-08)
+licence: MIT (see LICENSE in this directory)
+update procedure: replace this directory wholesale from a pinned tag, update this file, re-run tools/test.sh

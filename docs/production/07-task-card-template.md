@@ -28,6 +28,7 @@ Prompt template: /ai/prompts/<name>.md
 - Every script starts with `class_name Cad<Name>` then `extends <Base>`; one class per file; file name = `cad_<snake>.gd`.
 - No `get()`/`set()`/`call()`/`has_method()` string access outside `tools/csv_import/` and `CadDefs.migrate_def()`; no duck typing where a `class_name` exists; casts with `as` only when the static type cannot be known and a null check follows.
 - Enums referenced as `CadEnums.ThreatState.INGRESS` (never raw ints in logic; raw ints allowed only inside Packed arrays with a comment naming the enum).
+- Test suites are the one exception to `return_value_discarded`: `extends GdUnitTestSuite`, no `class_name`, and `@warning_ignore_start("return_value_discarded")` under the `extends` line, because gdUnit4 assertions are fluent. No other warning may be suppressed anywhere without a card that says so.
 
 ### STD-SIM (any file under `src/sim/`, `src/defs/`)
 - `extends RefCounted` only; forbidden tokens: `extends Node`, `get_tree`, `Timer`, `await`, `signal `, `Engine.`, `Time.`, `OS.`, `Input.`, `randf(`, `randi(`, `preload(`, `load(`, `print(` (use the event log), `ResourceLoader` (only `CadDefs`).
