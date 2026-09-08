@@ -108,6 +108,17 @@ jobs:
           fi
           echo "import clean"
 
+      - name: Typecheck every script
+        # A-10 turns warnings into parse errors, so this loads every script as the typing gate.
+        # load() alone is not enough: it returns a non-null GDScript for a file that failed to
+        # parse, so check_scripts.gd tests reload() (verified 2026-09-08).
+        run: |
+          "$GODOT_BIN" --headless --path . -s res://tools/check_scripts.gd
+
+      - name: Sim purity
+        run: |
+          "$GODOT_BIN" --headless --path . -s res://tools/check_sim_purity.gd
+
       - name: Typing gate must reject bad scripts
         # Inverted test for A-10. Godot keeps unknown project settings silently, so a renamed or
         # mistyped debug/gdscript/warnings/* key would switch the strict-typing gate off with no

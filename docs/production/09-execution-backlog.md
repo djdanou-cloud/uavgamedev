@@ -89,6 +89,7 @@ Conventions used by every card:
 - **Dependencies:** CAD-FP-003.
 - **Effort:** 1 agent session × 10 human minutes.
 - **Abandon criteria:** STD-ABANDON; specific: `ResourceLoader.load` of a script with an error does not return null in 4.7 → agent records the actual behaviour and stops (human decides on `GDScript.new()` + `set_source_code` + `reload()` alternative).
+- **Delivery note (2026-09-08):** the abandon clause above triggered and was resolved in-card rather than stopped, because the fix was one line: `load()` does return non-null for broken scripts, so the checker uses `script.reload() != OK`. Two further contract refinements were forced and are recorded in the handoff: `FORBIDDEN` is split into plain-substring tokens and global-form tokens (otherwise the legitimate `rng.randf(` and `preload(`/`load(` overlap produce false positives), and `scan_dir` takes an `extension` parameter so the fixtures can be scanned as `.txt`. `check_scripts.gd` skips its own path: self-loading with `CACHE_MODE_IGNORE` segfaults the engine.
 - **Prompt template:** /ai/prompts/implement-from-card.md
 
 ---

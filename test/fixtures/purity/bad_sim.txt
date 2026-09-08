@@ -1,0 +1,14 @@
+extends Node
+	var t = get_tree()
+	var timer := Timer.new()
+	await ready
+signal something_happened
+	Engine.get_frames_drawn()
+	Time.get_ticks_usec()
+	OS.get_name()
+	Input.is_action_pressed("fire")
+	randf()
+	randi()
+	preload("res://src/sim/cad_const.gd")
+	load("res://src/sim/cad_enums.gd")
+	print("hello")

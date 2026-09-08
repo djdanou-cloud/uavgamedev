@@ -1,0 +1,13 @@
+class_name CadGoodProbe
+extends RefCounted
+
+var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var _values: PackedFloat32Array = PackedFloat32Array()
+var _count: int = 0
+
+
+func step(tick: int) -> float:
+	# Method-call forms are legitimate: the sim draws randomness from an injected generator.
+	var roll: float = _rng.randf()
+	_values[_count] = roll * float(tick)
+	return roll
