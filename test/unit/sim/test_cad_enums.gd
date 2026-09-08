@@ -54,8 +54,9 @@ func test_band_bit_maps_each_band_to_its_own_bit() -> void:
 	assert_int(CadEnums.band_bit(CadEnums.AltBand.MED)).is_equal(2)
 	assert_int(CadEnums.band_bit(CadEnums.AltBand.HIGH)).is_equal(4)
 	assert_int(CadEnums.band_bit(CadEnums.AltBand.BALLISTIC)).is_equal(8)
-	var low_med: int = CadEnums.band_bit(CadEnums.AltBand.LOW) | CadEnums.band_bit(CadEnums.AltBand.MED)
-	assert_int(low_med & CadEnums.band_bit(CadEnums.AltBand.HIGH)).is_equal(0)
+	var low: int = CadEnums.band_bit(CadEnums.AltBand.LOW)
+	var med: int = CadEnums.band_bit(CadEnums.AltBand.MED)
+	assert_int((low | med) & CadEnums.band_bit(CadEnums.AltBand.HIGH)).is_equal(0)
 
 
 func test_seconds_to_ticks_rounds_up() -> void:

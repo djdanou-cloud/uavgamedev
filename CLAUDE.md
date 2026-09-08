@@ -16,6 +16,7 @@ You are one of many coding agents working on a Godot 4.7.2 / GDScript / Android-
 | topic | rule |
 |-------|------|
 | Files | `cad_<snake>.gd`, one `class_name Cad<Name>` per file; scenes `cad_<name>.tscn`; tests `test_cad_<name>.gd`; shaders `cad_<name>.gdshader` |
+| Math | use the typed variants (`ceilf`, `floorf`, `roundf`, `absf`, `maxf`, `minf`, `snappedf`): the untyped globals (`ceil`, `abs`, …) return `Variant`, which `int()`/`float()` refuse under A-10 |
 | Typing | every variable, parameter, return and export typed; no `Variant` where a type exists; typed arrays/dictionaries; enums referenced by name (`CadEnums.ThreatState.INGRESS`) |
 | Project settings | warnings `untyped_declaration`, `unsafe_*`, `return_value_discarded` are **errors**; a script with a warning does not load; `inferred_declaration` warns (avoid `:=` except for constructor/literal locals) |
 | Sim purity (`src/sim/`) | forbidden tokens: `extends Node`, `get_tree(`, `Timer`, `await `, `signal `, `Engine.`, `Time.`, `OS.`, `Input.`, `randf(`, `randi(`, `preload(`, `load(`, `print(` — enforced by `tools/check_sim_purity.gd` in CI |
