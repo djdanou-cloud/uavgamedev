@@ -353,17 +353,21 @@ name: ci
 on: [push, pull_request]
 env:
   GODOT_VERSION: "4.7.2"
-  GODOT_SHA256: "<sha256 of Godot_v4.7.2-stable_linux.x86_64.zip>"        # [HUMAN fills at CAD-FP-005]
-  TEMPLATES_SHA256: "<sha256 of Godot_v4.7.2-stable_export_templates.tpz>"
+  GDTOOLKIT_VERSION: "4.5.0"
+# Official builds live in godotengine/godot-builds, and each release publishes SHA512-SUMS.txt
+# (there is no SHA256 sums file) — both verified 2026-09-08 at CAD-FP-005. The workflow downloads
+# that file, greps the line for the asset it fetched, and runs `sha512sum -c` on that one line.
 jobs:
   lint:            # ubuntu-latest, python 3.12
     - actions/checkout@v4 ; actions/setup-python@v5
     - pip install gdtoolkit==4.5.0
     - gdlint src test tools
     - gdformat --check src test tools
-  test:            # needs: lint
+  engine:          # jobs are added as their tools land: import + typing probe now (CAD-FP-005),
+                   # gdUnit4 (CAD-FP-003), typecheck/purity (CAD-FP-004), content (CAD-FP-023),
+                   # bench (CAD-FP-041), android-debug (CAD-FP-065)
     - actions/cache@v4  key: godot-${{ env.GODOT_VERSION }}  path: ~/.godot-bin
-    - curl -L https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip ; sha256sum -c ; unzip → ~/.godot-bin/godot
+    - curl -fsSL -O https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip and .../SHA512-SUMS.txt ; grep the asset's line ; sha512sum -c ; unzip → ~/.godot-bin/godot
     - $GODOT_BIN --headless --path . --import
     - $GODOT_BIN --headless --path . -s res://tools/check_scripts.gd            # loads every .gd, fails on any error (warnings are errors per A-10)
     - $GODOT_BIN --headless --path . -s res://tools/check_sim_purity.gd

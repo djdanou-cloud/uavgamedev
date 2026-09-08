@@ -1,0 +1,134 @@
+name: ci
+
+# Gate 1 (docs/production/03-architecture.md §D5.2). Delivered in stages: this file holds the
+# jobs whose tools exist today. CAD-FP-003 adds the gdUnit4 step, CAD-FP-004 the typecheck and
+# sim-purity steps, CAD-FP-023 content validation, CAD-FP-041 the bench regression, CAD-FP-065
+# the Android debug APK job. Every addition edits this file in its own card.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: "4.7.2"
+  GDTOOLKIT_VERSION: "4.5.0"
+
+jobs:
+  lint:
+    name: lint and python tools
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install gdtoolkit
+        run: pip install "gdtoolkit==${GDTOOLKIT_VERSION}"
+
+      - name: gdlint
+        run: |
+          set -euo pipefail
+          files="$(find src scenes tools test -name '*.gd' | sort)"
+          if [ -z "$files" ]; then
+            echo "no .gd files yet - nothing to lint (expected until CAD-FP-004)"
+            exit 0
+          fi
+          echo "$files" | xargs gdlint
+
+      - name: gdformat --check
+        run: |
+          set -euo pipefail
+          files="$(find src scenes tools test -name '*.gd' | sort)"
+          if [ -z "$files" ]; then
+            echo "no .gd files yet - nothing to format-check"
+            exit 0
+          fi
+          echo "$files" | xargs gdformat --check
+
+      - name: Python tool tests
+        run: python tools/tests/test_scaffold.py
+
+  engine:
+    name: godot import
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot binary
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/.godot-bin
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download and verify Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          zip="Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mkdir -p "$HOME/.godot-bin"
+          cd "$HOME/.godot-bin"
+          curl -fsSL -O "$base/$zip"
+          curl -fsSL -O "$base/SHA512-SUMS.txt"
+          # Official releases publish SHA512-SUMS.txt only (verified 2026-09-08); pin by version and
+          # verify the one line we care about, so a malformed sums file fails loudly instead of passing.
+          grep -E "  ?${zip}\$" SHA512-SUMS.txt > expected.sha512 || {
+            echo "::error::no checksum line for ${zip} in SHA512-SUMS.txt"; exit 1; }
+          sha512sum -c expected.sha512
+          echo "verified digest:"; cat expected.sha512
+          unzip -q "$zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          chmod +x godot
+
+      - name: Godot version
+        run: |
+          set -euo pipefail
+          echo "GODOT_BIN=$HOME/.godot-bin/godot" >> "$GITHUB_ENV"
+          "$HOME/.godot-bin/godot" --version
+
+      - name: Import project (must be clean)
+        run: |
+          set -euo pipefail
+          set -o pipefail
+          "$GODOT_BIN" --headless --path . --import 2>&1 | tee import.log
+          if grep -nE "ERROR|WARNING|SCRIPT ERROR" import.log; then
+            echo "::error::godot --import produced errors or warnings (see lines above)"
+            exit 1
+          fi
+          echo "import clean"
+
+      - name: Typing-gate probe (report only)
+        # Resolves [VERIFY] A-10: are the debug/gdscript/warnings/* names in project.godot real,
+        # and does untyped_declaration=2 actually reject a script? Godot keeps unknown project
+        # settings silently, so a wrong name would disable the gate with no error anywhere.
+        # Report-only here; CAD-FP-004 turns the observed behaviour into a hard gate.
+        run: |
+          set -uo pipefail
+          printf 'extends RefCounted\n\nvar probe_untyped = 1\n' > src/cad_typing_probe.gd
+          "$GODOT_BIN" --headless --path . --check-only -s res://src/cad_typing_probe.gd 2>&1 | tee probe.log
+          code=${PIPESTATUS[0]}
+          rm -f src/cad_typing_probe.gd
+          echo "--- probe exit code: ${code} ---"
+          echo "Expected if the gate works: non-zero exit and/or an UNTYPED_DECLARATION error above."
+          echo "Record the result in ai/handoffs/CAD-FP-005.md and docs/production/00-assumptions-register.md A.0."
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-logs
+          path: |
+            import.log
+            probe.log
+          if-no-files-found: ignore
