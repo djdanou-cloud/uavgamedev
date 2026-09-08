@@ -76,3 +76,32 @@ After the human authorizes/provides the pinned toolchain, set GODOT_BIN to the a
 - Shell push lacked authentication; connected GitHub API published identical checkpoint tree at a6e58a90ed0814f7d11eba5fda3a24a62b7becb4. Local original commit preserved on checkpoint/CAD-FP-014-local-603f02c.
 - Next: write all six card tests plus sparse IDs, deterministic bucket order, full/zero output capacity, shrinking rebuild, and allocation object-count probe. Record the failing run, then implement prefix-count scatter and exact bounded queries within 110 LOC.
 - Use `sh tools/*.sh` because wrapper executable bits are outside this card's scope. No wrapper changes needed.
+
+## Tests-first checkpoint
+- Seven tests written before implementation; all card cases plus capacity/order/shrinking/allocation coverage.
+- Command: `GODOT_SILENCE_ROOT_WARNING=1 GODOT_BIN=/workspace/scratch/d8bc082b1152/toolchain/Godot_v4.7.2-stable_linux.x86_64 sh tools/test.sh res://test/unit/sim/test_cad_spatial_hash.gd`
+- Missing CadSpatialHash prevents suite compilation as expected. Runner prints abnormal exit 105 but shell returns 0; this is not a passing test run. Typecheck/import gates remain necessary.
+- Hypothesis: all unresolved type/method diagnostics stem from the not-yet-created CadSpatialHash.
+- Next: implement the card interface, import to register the class, rerun seven tests.
+```text
+  Parse Error: The method "new()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/sim/test_cad_spatial_hash.gd:94
+  Parse Error: The method "rebuild()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/sim/test_cad_spatial_hash.gd:97
+  Parse Error: The method "item_count()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/sim/test_cad_spatial_hash.gd:98
+  Parse Error: The method "query_circle()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/sim/test_cad_spatial_hash.gd:99
+  Parse Error: The method "new()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/sim/test_cad_spatial_hash.gd:104
+  Parse Error: The method "rebuild()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/sim/test_cad_spatial_hash.gd:111
+  Parse Error: The method "rebuild()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/sim/test_cad_spatial_hash.gd:115
+  Parse Error: The method "query_circle()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/sim/test_cad_spatial_hash.gd:116
+  Parse Error: The method "item_count()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/sim/test_cad_spatial_hash.gd:120
+Abnormal exit with 105
+Run dispose test resources
+```
