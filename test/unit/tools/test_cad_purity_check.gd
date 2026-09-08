@@ -63,6 +63,16 @@ func test_scan_text_separates_preload_from_load() -> void:
 	assert_str(violations[0]).contains("preload(")
 
 
+func test_scan_text_allows_declarations_of_those_names() -> void:
+	# Given the simulation declaring its own randf/randi API (CadRng)
+	# When the declarations are scanned
+	# Then they are not violations: only a call to the global generator is
+	assert_int(CadPurityCheck.scan_text("func randf(stream: int) -> float:").size()).is_equal(0)
+	assert_int(CadPurityCheck.scan_text("static func randi(a: int) -> int:").size()).is_equal(0)
+	# A real call to the global generator is still caught.
+	assert_int(CadPurityCheck.scan_text("var x: float = randf()").size()).is_equal(1)
+
+
 func test_scan_dir_prefixes_paths() -> void:
 	# Given a directory holding the fixtures
 	# When it is scanned for .txt files

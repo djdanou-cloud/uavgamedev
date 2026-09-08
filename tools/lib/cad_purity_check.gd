@@ -77,10 +77,17 @@ static func _scan_into(root: String, extension: String, out: Array[String]) -> v
 static func _has_global_call(line: String, token: String) -> bool:
 	var at: int = line.find(token)
 	while at >= 0:
-		if at == 0:
-			return true
-		var previous: String = line.substr(at - 1, 1)
-		if previous != "." and IDENT_CHARS.find(previous) < 0:
+		if _is_global_call_at(line, at):
 			return true
 		at = line.find(token, at + 1)
 	return false
+
+
+static func _is_global_call_at(line: String, at: int) -> bool:
+	if at == 0:
+		return true
+	# `func randf(` declares the sim's own generator API; only a call to the global is a violation.
+	if at >= 5 and line.substr(at - 5, 5) == "func ":
+		return false
+	var previous: String = line.substr(at - 1, 1)
+	return previous != "." and IDENT_CHARS.find(previous) < 0
