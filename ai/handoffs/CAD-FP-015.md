@@ -1,7 +1,7 @@
 # Handoff — CAD-FP-015 — CadThreatDef resource schema
 
 ## 1. Status
-- status: IN_PROGRESS
+- status: TESTS_FAILING
 - last_updated_utc: 2026-09-08T16:01:32Z
 - agent: Codex; session: 1; takeover_from: none
 
@@ -77,6 +77,33 @@ Read AGENTS.md, CLAUDE.md, standard sets, CAD-FP-015, D3.1 and B.2/B.14, then th
 	at res://test/unit/data/test_cad_threat_def.gd:96
   Parse Error: The method "new()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
 	at res://test/unit/data/test_cad_threat_def.gd:100
+Abnormal exit with 105
+Run dispose test resources
+```
+
+## Implementation attempt 1
+- Engine rejected discarded return values from PackedStringArray.append() under strict typing. Suite did not execute; abnormal 105 / shell 0.
+- Root cause: this packed-array append returns a status value in the pinned engine; regular typed Array[String].append returns void.
+- Next correction: collect messages in typed Array[String], convert once to PackedStringArray at return. Validation is a load-time data operation, not a tick path; public contract unchanged.
+```text
+  Parse Error: The function "append()" returns a value that will be discarded if not used. (Warning treated as error.)
+	at res://src/data/cad_threat_def.gd:32
+  Parse Error: The function "append()" returns a value that will be discarded if not used. (Warning treated as error.)
+	at res://src/data/cad_threat_def.gd:34
+  Parse Error: The function "append()" returns a value that will be discarded if not used. (Warning treated as error.)
+	at res://src/data/cad_threat_def.gd:36
+  Parse Error: The function "append()" returns a value that will be discarded if not used. (Warning treated as error.)
+	at res://src/data/cad_threat_def.gd:38
+  Parse Error: The function "append()" returns a value that will be discarded if not used. (Warning treated as error.)
+	at res://src/data/cad_threat_def.gd:40
+  Parse Error: The function "append()" returns a value that will be discarded if not used. (Warning treated as error.)
+	at res://src/data/cad_threat_def.gd:42
+  Parse Error: The function "append()" returns a value that will be discarded if not used. (Warning treated as error.)
+	at res://src/data/cad_threat_def.gd:44
+  Parse Error: The function "append()" returns a value that will be discarded if not used. (Warning treated as error.)
+	at res://src/data/cad_threat_def.gd:46
+  Compile Error: Failed to compile depended scripts.
+	at res://test/unit/data/test_cad_threat_def.gd:0
 Abnormal exit with 105
 Run dispose test resources
 ```
