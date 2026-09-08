@@ -1,7 +1,7 @@
 # Handoff — CAD-FP-014 — CadSpatialHash uniform grid
 
 ## 1. Status
-- status: IN_PROGRESS
+- status: TESTS_PASSING
 - last_updated_utc: 2026-09-08T15:24:57Z
 - agent: Codex; session: 1; takeover_from: none
 - time_spent_min: 5
@@ -103,5 +103,35 @@ After the human authorizes/provides the pinned toolchain, set GODOT_BIN to the a
   Parse Error: The method "item_count()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
 	at res://test/unit/sim/test_cad_spatial_hash.gd:120
 Abnormal exit with 105
+Run dispose test resources
+```
+
+## Implementation checkpoint
+- All 7 spatial-grid tests pass on first implementation run, exit 0, 1.138 s.
+- Exact circle results match brute force for 500 seeded points and 50 circles.
+- [VERIFY] Packed output writes are visible to callers without resizing: confirmed.
+- Full-capacity 512-point rebuild/query repeated 1,800 times: object_count_delta = 0 (asserted in passing test). Object-count measurement does not prove absence of every native allocation; source audit also required.
+- Stable scatter uses input-slot-indexed scratch cells, so sparse entity IDs work with a small max_items capacity. Truncated output returns written count without resize.
+- Next: lint, typecheck, purity, full suite, LOC and final review.
+```text
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_rebuild_twice_same_order STARTED
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_rebuild_twice_same_order PASSED 7ms
+
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_empty_rebuild_query_zero STARTED
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_empty_rebuild_query_zero PASSED 7ms
+
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_full_capacity_tick_paths_create_no_objects STARTED
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_full_capacity_tick_paths_create_no_objects PASSED 1s 46ms
+
+Statistics: 7 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans | PASSED 1s 138ms
+
+
+Overall Summary: 7 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans |
+Executed test suites: (1/1)
+Executed test cases : (7/7)
+Total execution time: 1s 138ms
+ Open XML Report at: file://reports/gdunit/report_2/results.xml
+Open HTML Report at: file://reports/gdunit/report_2/index.html
+Exit code: 0
 Run dispose test resources
 ```
