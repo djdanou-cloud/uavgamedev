@@ -8,8 +8,8 @@
 ## 2. Branch and checkpoint
 - branch: card/CAD-FP-015-threat-def
 - base: a96bc7d (current main); dependency CAD-FP-009 merged at be13226 / 8be41e4
-- last_pushed_commit: claim checkpoint pending publication
-- last_green_commit: none for this card
+- last_pushed_commit: 9acc73543a2bf34ad9d502d37366370a6969cd33 — complete validated resource
+- last_green_commit: 9acc73543a2bf34ad9d502d37366370a6969cd33 (local tested code)
 
 ## 3. Files and ordered plan
 | path | intent | state |
@@ -25,15 +25,15 @@ D3.1 is the exact field contract: 23 fields. B.2 has 19 roster columns; schema a
 
 ## 4. Tests
 - command: `GODOT_SILENCE_ROOT_WARNING=1 GODOT_BIN=/workspace/scratch/d8bc082b1152/toolchain/Godot_v4.7.2-stable_linux.x86_64 sh tools/test.sh res://test/unit/data/test_cad_threat_def.gd`
-- last_exit_code: not run yet
-- failing_tests: not run yet
-- output: no test run yet; toolchain verified in prior card
+- last_exit_code: 0
+- failing_tests: none
+- output: final results and historical red evidence below
 
 ## 5. Hypotheses
 - No CadThreatDef class exists; tests-first load should fail until implementation.
 
 ## 6. Exact next step
-After publishing claim, write the test suite and run the command in section 4.
+Open PR, check CI for published head, finalize READY_FOR_REVIEW. No code work remains.
 
 ## 7. Blockers / questions
 - None. Toolchain installation and task-branch publishing authorized in this conversation.
@@ -44,13 +44,13 @@ After publishing claim, write the test suite and run the command in section 4.
 Read AGENTS.md, CLAUDE.md, standard sets, CAD-FP-015, D3.1 and B.2/B.14, then this handoff. Do not redo dependency confirmation. CAD-FP-014 remains on its separate review branch and is not a dependency.
 
 ## 9. Self-review checklist
-- [ ] exact field names/types/order/defaults and validate contract
-- [ ] tests first and green; eight rules, boundaries, serialization
-- [ ] strict typing and data constraints
+- [x] exact field names/types/order/defaults and validate contract
+- [x] tests first and green; eight rules, boundaries, serialization
+- [x] strict typing and data constraints
 - [x] no tick-path changes or project dependencies
-- [ ] source scope and LOC ceilings met
-- [ ] available local gates green
-- [ ] handoff/log/metrics finalized
+- [x] source scope and LOC ceilings met: 44/60 implementation, 135/150 tests
+- [x] available local gates green
+- [x] handoff/log/metrics finalized (CI status still pending)
 - [ ] remote CI reviewed
 
 ## Red checkpoint
@@ -132,6 +132,48 @@ Executed test cases : (12/12)
 Total execution time: 179ms
  Open XML Report at: file://reports/gdunit/report_4/results.xml
 Open HTML Report at: file://reports/gdunit/report_4/index.html
+Exit code: 0
+Run dispose test resources
+```
+
+## Final local checks
+| command | exit | result |
+|---------|------|--------|
+| Godot headless import | 0 | no warnings/errors |
+| `sh tools/lint.sh` with gdtoolkit venv on PATH | 0 | no problems; 20 files unchanged |
+| `sh tools/typecheck.sh` | 0 | OK 19 scripts |
+| `sh tools/purity.sh` | 0 | OK purity res://src/sim |
+| `sh tools/test.sh res://test/unit/data/test_cad_threat_def.gd` | 0 | 12/12, 179 ms |
+| `sh tools/test.sh` | 0 | 71/71 across 9 suites, 1.353 s |
+| `python tools/tests/test_scaffold.py` | 0 | PASS |
+| `git diff --check origin/main..HEAD` | 0 | no whitespace defects |
+| D3.1 export field names/order comparison | 0 | all 23 match |
+| `python tools/loc.py main..HEAD` | 0 | impl=44 test=135 |
+
+Godot executable: /workspace/scratch/d8bc082b1152/toolchain/Godot_v4.7.2-stable_linux.x86_64. Set GODOT_BIN accordingly and GODOT_SILENCE_ROOT_WARNING=1. Lint venv: /workspace/scratch/d8bc082b1152/toolchain-venv/bin.
+This branch is based on main (59 prior tests) and does not include the independent, unmerged spatial-grid card. It adds 12 cases for a total of 71.
+No tick-path changes; benchmark not applicable. tools/validate.sh is introduced by CAD-FP-023 and is not present. B.14 and balance data unchanged. No new dependency, asset, public existing contract or source reformat outside card scope.
+Typed enums and all 23 values preserved by CACHE_MODE_IGNORE load; no [VERIFY] items remain.
+
+```text
+  res://test/unit/data/test_cad_threat_def.gd > test_valid_boundaries_and_disabled_jammer STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_valid_boundaries_and_disabled_jammer PASSED 7ms
+
+  res://test/unit/data/test_cad_threat_def.gd > test_reports_all_errors_in_field_order_without_mutation STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_reports_all_errors_in_field_order_without_mutation PASSED 7ms
+
+  res://test/unit/data/test_cad_threat_def.gd > test_tres_roundtrip STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_tres_roundtrip PASSED 9ms
+
+Statistics: 12 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans | PASSED 154ms
+
+
+Overall Summary: 71 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans |
+Executed test suites: (9/9)
+Executed test cases : (71/71)
+Total execution time: 1s 353ms
+ Open XML Report at: file://reports/gdunit/report_5/results.xml
+Open HTML Report at: file://reports/gdunit/report_5/index.html
 Exit code: 0
 Run dispose test resources
 ```
