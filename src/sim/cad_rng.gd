@@ -52,10 +52,7 @@ func set_state(stream: int, state: int) -> void:
 
 
 func get_states() -> PackedInt64Array:
-	var out: PackedInt64Array = PackedInt64Array()
-	# resize() returns an Error that A-10 forbids discarding, so it is checked rather than ignored.
-	var resize_error: int = out.resize(_streams.size())
-	assert(resize_error == OK, "could not size the RNG state buffer")
+	var out: PackedInt64Array = CadPacked.longs(_streams.size())
 	for i: int in _streams.size():
 		out[i] = _streams[i].state
 	return out

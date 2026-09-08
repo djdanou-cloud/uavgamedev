@@ -26,12 +26,12 @@ var _y: PackedFloat32Array
 
 func _init(capacity: int = CadConst.EVENT_CAPACITY) -> void:
 	self.capacity = capacity
-	_type = _sized_ints(capacity)
-	_a = _sized_ints(capacity)
-	_b = _sized_ints(capacity)
-	_c = _sized_ints(capacity)
-	_x = _sized_floats(capacity)
-	_y = _sized_floats(capacity)
+	_type = CadPacked.ints(capacity)
+	_a = CadPacked.ints(capacity)
+	_b = CadPacked.ints(capacity)
+	_c = CadPacked.ints(capacity)
+	_x = CadPacked.floats(capacity)
+	_y = CadPacked.floats(capacity)
 
 
 ## Records one event. Tick-path: index writes only, no allocation, no branching on strings.
@@ -96,18 +96,3 @@ func hash_contents() -> int:
 	value = value * 31 + hash(_x.slice(0, count))
 	value = value * 31 + hash(_y.slice(0, count))
 	return value
-
-
-static func _sized_ints(size: int) -> PackedInt32Array:
-	var out: PackedInt32Array = PackedInt32Array()
-	# resize() returns an Error that A-10 forbids discarding, so it is checked rather than ignored.
-	var resize_error: int = out.resize(size)
-	assert(resize_error == OK, "could not size the event log")
-	return out
-
-
-static func _sized_floats(size: int) -> PackedFloat32Array:
-	var out: PackedFloat32Array = PackedFloat32Array()
-	var resize_error: int = out.resize(size)
-	assert(resize_error == OK, "could not size the event log")
-	return out

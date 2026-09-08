@@ -47,34 +47,32 @@ var _lowest_free: int = 0
 
 func _init(capacity: int = CadConst.MAX_THREATS) -> void:
 	self.capacity = capacity
-	alive = _ints(capacity)
-	def_index = _ints(capacity)
-	state = _ints(capacity)
-	value = _ints(capacity)
-	target_kind = _ints(capacity)
-	target_id = _ints(capacity)
-	detect_ticks_left = _ints(capacity)
-	track_owner = _ints(capacity)
-	track_age = _ints(capacity)
-	engaged_by = _ints(capacity)
-	flags = _ints(capacity)
-	state_ticks = _ints(capacity)
-	spawn_tick = _ints(capacity)
-	eccm_level = _ints(capacity)
-	package_id = _ints(capacity)
-	pos_x = _floats(capacity)
-	pos_y = _floats(capacity)
-	prev_x = _floats(capacity)
-	prev_y = _floats(capacity)
-	vel_x = _floats(capacity)
-	vel_y = _floats(capacity)
-	alt_m = _floats(capacity)
-	hp = _floats(capacity)
-	target_x = _floats(capacity)
-	target_y = _floats(capacity)
-	_alive_flag = PackedByteArray()
-	var resize_error: int = _alive_flag.resize(capacity)
-	assert(resize_error == OK, "could not size the threat store")
+	alive = CadPacked.ints(capacity)
+	def_index = CadPacked.ints(capacity)
+	state = CadPacked.ints(capacity)
+	value = CadPacked.ints(capacity)
+	target_kind = CadPacked.ints(capacity)
+	target_id = CadPacked.ints(capacity)
+	detect_ticks_left = CadPacked.ints(capacity)
+	track_owner = CadPacked.ints(capacity)
+	track_age = CadPacked.ints(capacity)
+	engaged_by = CadPacked.ints(capacity)
+	flags = CadPacked.ints(capacity)
+	state_ticks = CadPacked.ints(capacity)
+	spawn_tick = CadPacked.ints(capacity)
+	eccm_level = CadPacked.ints(capacity)
+	package_id = CadPacked.ints(capacity)
+	pos_x = CadPacked.floats(capacity)
+	pos_y = CadPacked.floats(capacity)
+	prev_x = CadPacked.floats(capacity)
+	prev_y = CadPacked.floats(capacity)
+	vel_x = CadPacked.floats(capacity)
+	vel_y = CadPacked.floats(capacity)
+	alt_m = CadPacked.floats(capacity)
+	hp = CadPacked.floats(capacity)
+	target_x = CadPacked.floats(capacity)
+	target_y = CadPacked.floats(capacity)
+	_alive_flag = CadPacked.bytes(capacity)
 
 
 ## Claims the lowest free slot and resets it completely. Returns CadConst.INVALID when full.
@@ -144,18 +142,3 @@ func clear_all() -> void:
 	_alive_flag.fill(0)
 	alive_count = 0
 	_lowest_free = 0
-
-
-static func _ints(size: int) -> PackedInt32Array:
-	var out: PackedInt32Array = PackedInt32Array()
-	# resize() returns an Error that A-10 forbids discarding, so it is checked, not ignored.
-	var resize_error: int = out.resize(size)
-	assert(resize_error == OK, "could not size the threat store")
-	return out
-
-
-static func _floats(size: int) -> PackedFloat32Array:
-	var out: PackedFloat32Array = PackedFloat32Array()
-	var resize_error: int = out.resize(size)
-	assert(resize_error == OK, "could not size the threat store")
-	return out
