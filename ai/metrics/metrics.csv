@@ -1,0 +1,1 @@
+card_id,task_type,agent_model,sessions,first_pass_green,test_runs_to_green,loc_impl,loc_test,review_minutes,coaching_minutes,abandoned,abandon_reason,takeover_attempted,takeover_success,defects_escaped_to_device,merged_date
