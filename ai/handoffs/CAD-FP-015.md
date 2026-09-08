@@ -52,3 +52,31 @@ Read AGENTS.md, CLAUDE.md, standard sets, CAD-FP-015, D3.1 and B.2/B.14, then th
 - [ ] available local gates green
 - [ ] handoff/log/metrics finalized
 - [ ] remote CI reviewed
+
+## Red checkpoint
+- Tests written before implementation; CadThreatDef is absent, suite fails to compile as expected.
+- Command: section 4; shell exit 0, gdUnit abnormal exit 105 (known failed-load discrepancy; not a passing run).
+- Cases: defaults; eight parameterized bad inputs; valid boundaries; combined errors; full 23-field save/load.
+- Next: implement schema exactly and rerun after import.
+```text
+  Parse Error: The method "validate()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/data/test_cad_threat_def.gd:59
+  Parse Error: The method "validate()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/data/test_cad_threat_def.gd:62
+  Parse Error: The method "validate()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/data/test_cad_threat_def.gd:75
+  Parse Error: The method "validate()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/data/test_cad_threat_def.gd:77
+  Parse Error: The argument 1 of the function "save()" requires the subtype "Resource" but the supertype "Variant" was provided. (Warning treated as error.)
+	at res://test/unit/data/test_cad_threat_def.gd:86
+  Parse Error: The argument 1 of the function "_assert_same_fields()" requires the subtype "Variant" but the supertype "Variant" was provided. (Warning treated as error.)
+	at res://test/unit/data/test_cad_threat_def.gd:95
+  Parse Error: The argument 2 of the function "_assert_same_fields()" requires the subtype "Variant" but the supertype "Variant" was provided. (Warning treated as error.)
+	at res://test/unit/data/test_cad_threat_def.gd:95
+  Parse Error: The method "validate()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/data/test_cad_threat_def.gd:96
+  Parse Error: The method "new()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
+	at res://test/unit/data/test_cad_threat_def.gd:100
+Abnormal exit with 105
+Run dispose test resources
+```
