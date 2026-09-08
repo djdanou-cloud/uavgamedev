@@ -102,9 +102,20 @@ def check_project_godot(fails: list) -> None:
     for setting in ('renderer/rendering_method="gl_compatibility"',
                     "common/physics_ticks_per_second=30",
                     "gdscript/warnings/untyped_declaration=2",
+                    "gdscript/warnings/return_value_discarded=2",
+                    "gdscript/warnings/directory_rules=",
                     "config/quit_on_go_back=false"):
         if setting not in text:
             fails.append(f"project.godot: missing {setting}")
+    # exclude_addons is a Godot 3 name; on 4.x it is ignored silently, which would leave vendored
+    # addons under our strict warnings. directory_rules replaced it (A.0, verified 2026-09-08).
+    if any(line.strip().startswith("gdscript/warnings/exclude_addons")
+           for line in text.splitlines()):
+        fails.append("project.godot: exclude_addons does not exist in Godot 4 - use directory_rules")
+    # Godot imports any .csv as a CSV Translation; these directories must opt out.
+    for guarded in ("ai", "docs", "data/csv", "test/fixtures/csv"):
+        if not (ROOT / guarded / ".gdignore").exists():
+            fails.append(f"missing {guarded}/.gdignore (Godot would import its .csv as translations)")
 
 
 def main() -> int:

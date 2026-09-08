@@ -12,6 +12,8 @@ config_version=5
 [application]
 config/name="Colonel Air-defense: The Danger Wave"
 config/version="0.1.0"
+; run/main_scene is written by CAD-FP-063, when scenes/app/cad_boot.tscn exists: an earlier value
+; makes --import log ERROR: Cannot open file, which the CI import gate rejects.
 run/main_scene="res://scenes/app/cad_boot.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/quit_on_go_back=false
@@ -31,8 +33,12 @@ gdscript/warnings/unsafe_method_access=2
 gdscript/warnings/unsafe_cast=2
 gdscript/warnings/unsafe_call_argument=2
 gdscript/warnings/return_value_discarded=2
-gdscript/warnings/exclude_addons=true
-; [VERIFY] all names/values above against Godot 4.7 ProjectSettings (2 = Error, 1 = Warn)
+gdscript/warnings/directory_rules={"res://addons": 0}
+; VERIFIED on 4.7.2 (2026-09-08, CAD-FP-005): the seven warning names above are engine-declared with
+; hint "Ignore,Warn,Error"; 2 = Error, 1 = Warn. exclude_addons is a Godot 3 name and does not exist
+; in 4.x - directory_rules (Dictionary, 0 = Exclude / 1 = Include) is its replacement.
+; Every directory holding non-translation .csv files needs a .gdignore, or Godot imports it as a
+; CSV Translation: ai/, docs/, data/csv/, test/fixtures/csv/ carry one.
 
 [display]
 window/size/viewport_width=1920

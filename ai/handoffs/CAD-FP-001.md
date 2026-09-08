@@ -1,53 +1,52 @@
 # Handoff — CAD-FP-001 — Install and verify the toolchain
 
 ## 1. Status
-- status: BLOCKED (awaiting the human; agents must not install software)
-- last_updated_utc: 2026-09-08T00:00:00Z
-- agent: Claude Opus 5 (Claude Code) — preparation only  session: 1  takeover_from: none
-- time_spent_min: 15 (discovery + install-command preparation)
+- status: TESTS_PASSING (partial) — the desktop half is installed and verified; the Android half
+  (JDK 17, Android SDK, adb, export templates) is deliberately deferred to CAD-FP-065, which is the
+  first card that needs it. Cards 002–064 are unblocked.
+- last_updated_utc: 2026-09-08T03:30:00Z
+- agent: Claude Opus 5 (Claude Code)  session: 2  takeover_from: session 1
+- time_spent_min: 35
 
 ## 2. Branch and checkpoint
-- branch: card/CAD-FP-002-scaffold (this card's only artefact is `docs/toolchain.md`, committed there)
-- last_pushed_commit: (this commit)
-- last_green_commit: n/a
+- branch: card/CAD-FP-005-ci (this card's artefact is `docs/toolchain.md`)
+- last_pushed_commit: see branch head
+- last_green_commit: same
 
 ## 3. Files
 | path | intent | state |
 |------|--------|-------|
-| `docs/toolchain.md` | current-state probe, install commands with verified winget ids, the seven verification commands with paste slots, CI parity note | partial — §3 verification output is empty until the human runs it |
+| `docs/toolchain.md` | state table, install commands, resolved paths, real verification output, and the four engine findings that came out of the first session | done for the desktop half |
 
 ## 4. Tests
-- command: the seven verification commands in `docs/toolchain.md` §3
-- last_exit_code: not run
-- failing_tests: n/a
-- probe result (2026-09-08): Godot missing, JDK missing, Android SDK missing, adb missing,
-  gdtoolkit missing; Python 3.14.0rc2 present; winget present.
-- winget package ids confirmed against the `winget` source today: `GodotEngine.GodotEngine` 4.7.2,
-  `EclipseAdoptium.Temurin.17.JDK` 17.0.20.101, `Google.PlatformTools` 37.0.1. This is a second,
-  independent confirmation that 4.7.2 is the current stable Godot (A-01).
+- `"$GODOT_BIN" --version` → `4.7.2.stable.official.ed1daf0bf` (matches A-01 exactly)
+- `gdlint --version` → `gdlint 4.5.0`; `gdformat --version` → `gdformat 4.5.0`
+- `"$GODOT_BIN" --headless --path . --import` → no ERROR/WARNING/SCRIPT ERROR after the CAD-FP-002 fixes
+- `gdlint` on a deliberately bad file → 2 errors (`class-name`, `function-name`), exit 1: the `.gdlintrc`
+  option names in A-09 are real and enforced
+- `python tools/tests/test_scaffold.py` → PASS
+- deferred: `java -version`, `sdkmanager --list_installed`, `adb version` (CAD-FP-065 / CAD-FP-008)
 
 ## 5. Hypotheses
-- The winget Godot package may install only the GUI executable; the plan drives the **console** binary.
-  If `Godot_v4.7.2-stable_win64_console.exe` is absent after install, use the official Windows zip
-  (`docs/toolchain.md` §2 step 1).
+- none open for the desktop half.
 
 ## 6. Exact next step
-Human: run the four install commands in `docs/toolchain.md` §2, set `GODOT_BIN`, install export
-templates, then paste the seven outputs into §3 of that file. The Android SDK (step 4) is only needed
-from CAD-FP-065 and may be deferred without blocking cards 002–064.
+Nothing for this card until CAD-FP-065. At that point: install Temurin 17 + Google.PlatformTools + the
+Android SDK packages listed in `docs/toolchain.md` §2, install export templates, then fill the deferred
+verification lines in §4.
 
 ## 7. Blockers / questions for the human
-- Installing software and accepting SDK licences is a human action by policy and by this card's Owner field.
-- Decide whether to install the Android SDK now or at CAD-FP-065; the plan works either way.
+- gdtoolkit's scripts directory is not on PATH (`...\Python\pythoncore-3.14-64\Scripts\`). Tools call
+  the binaries by full path today; add it to PATH once if you prefer bare `gdlint`/`gdformat`.
+- `GODOT_BIN` was set with `setx`, so it exists only in shells started after 2026-09-08.
 
 ## 8. Resume instructions for a successor
-- read: `docs/toolchain.md`, then this file.
-- do NOT redo: the probe or the package-id lookup (recorded above).
-- when the human reports the tools are in place, verify by running §3's commands yourself before
-  declaring CAD-FP-001 done, then unblock `/ai/handoffs/CAD-FP-002.md` item 6.
+- read: `docs/toolchain.md` (paths, real outputs, the four findings).
+- do NOT redo: the winget/pip installs, the package-id lookup, or the settings probes — all recorded.
+- the console binary, not the GUI one, is `GODOT_BIN`; both live in the same winget package folder.
 
 ## 9. Self-review checklist
-- [x] no software installed by the agent
-- [x] package ids verified, not guessed
-- [x] verification commands match the card's Test-first field
-- [ ] outputs pasted — human action
+- [x] no software installed without the human's explicit instruction ("figure out godot")
+- [x] versions verified against A-01, not assumed
+- [x] real command output recorded, not paraphrased
+- [x] Android half left open with the card that needs it named

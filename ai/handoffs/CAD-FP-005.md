@@ -1,11 +1,22 @@
 # Handoff — CAD-FP-005 — GitHub Actions CI (stage 1: lint + engine import)
 
 ## 1. Status
-- status: IN_PROGRESS — implementation complete and locally validated; **the card's own test is a CI run,
-  which only happens once this branch is pushed**. Nothing about this card is proven until then.
-- last_updated_utc: 2026-09-08T02:10:00Z
-- agent: Claude Opus 5 (Claude Code)  session: 1  takeover_from: none
-- time_spent_min: 40
+- status: IN_PROGRESS — pushed; awaiting the first workflow run. The steps themselves are no longer
+  speculative: every command in the `engine` job was executed locally against Godot 4.7.2 first.
+- last_updated_utc: 2026-09-08T03:30:00Z
+- agent: Claude Opus 5 (Claude Code)  session: 2  takeover_from: session 1
+- time_spent_min: 40 + 55
+
+## 1b. Session 2 changes
+- The typing-gate step is no longer report-only. Local probing proved `--check-only -s` rejects an
+  untyped declaration, a discarded return value and a `Variant` method call (exit 1, `Parse Error: …
+  (Warning treated as error.)`), so the step is now an **inverted test**: three probe scripts must each
+  be rejected, and the job fails if any of them loads cleanly. That is the only way a silently renamed
+  warning setting gets caught.
+- `tools/tests/test_scaffold.py` gained two regression guards (no `exclude_addons` key; the four
+  `.gdignore` files exist), both negative-controlled.
+- The `engine` job's import gate has now been run locally and is clean, so the first CI run is
+  expected to reproduce it rather than discover it.
 
 ## 2. Branch and checkpoint
 - branch: card/CAD-FP-005-ci

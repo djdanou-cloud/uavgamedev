@@ -108,20 +108,32 @@ jobs:
           fi
           echo "import clean"
 
-      - name: Typing-gate probe (report only)
-        # Resolves [VERIFY] A-10: are the debug/gdscript/warnings/* names in project.godot real,
-        # and does untyped_declaration=2 actually reject a script? Godot keeps unknown project
-        # settings silently, so a wrong name would disable the gate with no error anywhere.
-        # Report-only here; CAD-FP-004 turns the observed behaviour into a hard gate.
+      - name: Typing gate must reject bad scripts
+        # Inverted test for A-10. Godot keeps unknown project settings silently, so a renamed or
+        # mistyped debug/gdscript/warnings/* key would switch the strict-typing gate off with no
+        # error anywhere. Verified on 4.7.2 (2026-09-08): each probe exits 1 with
+        # 'Parse Error: ... (Warning treated as error.)'. If a probe ever loads cleanly, this fails.
         run: |
           set -uo pipefail
-          printf 'extends RefCounted\n\nvar probe_untyped = 1\n' > src/cad_typing_probe.gd
-          "$GODOT_BIN" --headless --path . --check-only -s res://src/cad_typing_probe.gd 2>&1 | tee probe.log
-          code=${PIPESTATUS[0]}
-          rm -f src/cad_typing_probe.gd
-          echo "--- probe exit code: ${code} ---"
-          echo "Expected if the gate works: non-zero exit and/or an UNTYPED_DECLARATION error above."
-          echo "Record the result in ai/handoffs/CAD-FP-005.md and docs/production/00-assumptions-register.md A.0."
+          fail=0
+          probe() {
+            name="$1"; body="$2"; needle="$3"
+            printf '%b' "$body" > "src/cad_probe_${name}.gd"
+            "$GODOT_BIN" --headless --path . --check-only -s "res://src/cad_probe_${name}.gd" > "probe_${name}.log" 2>&1
+            code=$?
+            rm -f "src/cad_probe_${name}.gd"
+            if [ "$code" -eq 0 ] || ! grep -q "$needle" "probe_${name}.log"; then
+              echo "::error::typing gate inactive for ${name} (exit ${code})"
+              cat "probe_${name}.log"
+              fail=1
+            else
+              echo "ok: ${name} rejected (exit ${code})"
+            fi
+          }
+          probe untyped 'extends RefCounted\n\nvar probe_untyped = 1\n' "has no static type"
+          probe discard 'extends RefCounted\n\n\nfunc _make() -> int:\n\treturn 1\n\n\nfunc run() -> void:\n\t_make()\n' "will be discarded"
+          probe unsafe 'extends RefCounted\n\n\nfunc run(o: Variant) -> void:\n\to.no_such_method()\n' "is not present on the inferred type"
+          exit $fail
 
       - name: Upload logs
         if: always()
@@ -130,5 +142,5 @@ jobs:
           name: engine-logs
           path: |
             import.log
-            probe.log
+            probe_*.log
           if-no-files-found: ignore

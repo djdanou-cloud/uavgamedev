@@ -1,104 +1,101 @@
 # Toolchain (CAD-FP-001)
 
 Machine of record: `DaduAsus`, Windows 11 Home 10.0.26200, shells: PowerShell + Git Bash.
-This file is the evidence for CAD-FP-001. The **Verification** section must hold the pasted
-output of all seven commands before the card is done; everything below it is preparation.
 
-## 1. Current state (probed 2026-09-08 by the CAD-FP-002 session)
+## 1. State (2026-09-08)
 
-| tool | required (A.0 / A-01) | found | blocks |
-|------|------------------------|-------|--------|
-| Godot | 4.7.2 stable, console binary, `GODOT_BIN` set | **missing** (not on PATH, no install found) | every `.gd`/`.tres` card from CAD-FP-003 on; the CAD-FP-002 import check |
-| Godot export templates | 4.7.2.stable | **missing** | CAD-FP-065 (debug APK) |
-| JDK | OpenJDK 17 (`JAVA_HOME`) | **missing** | CAD-FP-065 |
-| Android SDK | platform-tools ≥35.0.0, build-tools 35.0.1, platform 35 + 36, cmdline-tools latest, NDK r28b (28.1.13356709), CMake 3.10.2.4988404 | **missing** (`ANDROID_HOME` unset) | CAD-FP-065, CAD-FP-068 |
-| adb | any recent | **missing** | CAD-FP-008, device work |
-| Python | 3.x | **3.14.0rc2** ✔ | — |
-| gdtoolkit | 4.5.0 (`gdlint`, `gdformat`) | **missing** | CAD-FP-004 lint gate, CI parity |
-| winget | any | **present** ✔ | — |
+| tool | required (A.0 / A-01) | state | needed from |
+|------|------------------------|-------|-------------|
+| Godot | 4.7.2 stable console binary, `GODOT_BIN` set | **installed** ✔ | now |
+| gdtoolkit | 4.5.0 (`gdlint`, `gdformat`) | **installed** ✔ (see PATH note) | CAD-FP-004 |
+| Python | 3.x | 3.14.0rc2 ✔ | now |
+| Godot export templates | 4.7.2.stable | missing | CAD-FP-065 |
+| JDK | OpenJDK 17 (`JAVA_HOME`) | missing | CAD-FP-065 |
+| Android SDK | platform-tools ≥35.0.0, build-tools 35.0.1, platforms 35 + 36, cmdline-tools latest, NDK r28b (28.1.13356709), CMake 3.10.2.4988404 | missing (`ANDROID_HOME` unset) | CAD-FP-065 |
+| adb | any recent | missing | CAD-FP-008 |
 
-## 2. Install commands (run in PowerShell; `[HUMAN]` — an agent must not run these)
+Cards CAD-FP-002 … CAD-FP-064 are unblocked. The Android half of this card stays open until CAD-FP-065.
+
+## 2. Install commands (`[HUMAN]` — an agent must not run these)
+
+Done on 2026-09-08:
 
 ```powershell
 winget install --source winget --id GodotEngine.GodotEngine --version 4.7.2
-winget install --source winget --id EclipseAdoptium.Temurin.17.JDK
-winget install --source winget --id Google.PlatformTools
 pip install gdtoolkit==4.5.0
 ```
 
-Package ids verified against the winget source on 2026-09-08 (`GodotEngine.GodotEngine` 4.7.2,
-`EclipseAdoptium.Temurin.17.JDK` 17.0.20.101, `Google.PlatformTools` 37.0.1).
+Still to run, before CAD-FP-065:
 
-Then, in order:
+```powershell
+winget install --source winget --id EclipseAdoptium.Temurin.17.JDK
+winget install --source winget --id Google.PlatformTools
+```
 
-1. **Console binary.** The build we drive from scripts must be the *console* executable
-   (`Godot_v4.7.2-stable_win64_console.exe`). If the winget install does not provide it, download
-   the Windows zip from the official 4.7.2 release page, unzip to `C:\tools\godot\`, and use that.
-2. **`GODOT_BIN`** (permanent, user scope):
-   `setx GODOT_BIN "C:\tools\godot\Godot_v4.7.2-stable_win64_console.exe"` — open a new shell afterwards.
-3. **Export templates:** launch the editor once → *Editor > Manage Export Templates > Download and Install*
-   (or place `Godot_v4.7.2-stable_export_templates.tpz` contents in the templates folder).
-4. **Android SDK** (needed only from CAD-FP-065; no winget package for cmdline-tools):
-   download *Command line tools only* from the Android developer site, unzip to
-   `C:\Android\sdk\cmdline-tools\latest\`, set `ANDROID_HOME=C:\Android\sdk`, then:
-   ```powershell
-   sdkmanager "platform-tools" "build-tools;35.0.1" "platforms;android-35" "platforms;android-36" "cmdline-tools;latest" "ndk;28.1.13356709" "cmake;3.10.2.4988404"
-   sdkmanager --licenses
-   ```
-   `[VERIFY]` the exact version list against the Godot 4.7 "Exporting for Android" page on the day.
-5. **Editor settings for export** (D1.3): `export/android/android_sdk_path`, `export/android/java_sdk_path`,
-   and the debug keystore. Set from *Editor > Editor Settings > Export > Android*.
+Then: export templates (editor → *Manage Export Templates*), and the Android SDK — no winget package for
+cmdline-tools, so download *Command line tools only*, unzip to `C:\Android\sdk\cmdline-tools\latest\`,
+set `ANDROID_HOME=C:\Android\sdk`, and:
 
-## 3. Verification (paste real output here; the card is not done until all seven are present)
+```powershell
+sdkmanager "platform-tools" "build-tools;35.0.1" "platforms;android-35" "platforms;android-36" "cmdline-tools;latest" "ndk;28.1.13356709" "cmake;3.10.2.4988404"
+sdkmanager --licenses
+```
+
+`[VERIFY]` that list against the Godot 4.7 "Exporting for Android" page on the day it is run.
+
+## 3. Paths and environment
+
+| name | value |
+|------|-------|
+| `GODOT_BIN` | `C:\Users\djdan\AppData\Local\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\Godot_v4.7.2-stable_win64_console.exe` (set with `setx`, so **new shells only**) |
+| Git Bash form | `/c/Users/djdan/AppData/Local/Microsoft/WinGet/Packages/GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe/Godot_v4.7.2-stable_win64_console.exe` |
+| gdtoolkit scripts | `C:\Users\djdan\AppData\Local\Python\pythoncore-3.14-64\Scripts\` — **not on PATH**; call `gdlint`/`gdformat` by full path, or add that directory to PATH once |
+| winget also installed | `Godot_v4.7.2-stable_win64.exe` (GUI) in the same folder — use it for the editor, the `_console` one for scripts |
+
+## 4. Verification (real output, 2026-09-08)
 
 ```text
 $ "$GODOT_BIN" --version
-<paste>
-
-$ java -version
-<paste>
-
-$ sdkmanager --list_installed
-<paste>
+4.7.2.stable.official.ed1daf0bf
 
 $ gdlint --version
-<paste>
+gdlint 4.5.0
 
 $ gdformat --version
-<paste>
+gdformat 4.5.0
 
-$ adb version
-<paste>
+$ "$GODOT_BIN" --headless --path . --import   # after the .gdignore and main_scene fixes
+(no ERROR, WARNING or SCRIPT ERROR lines)
 
-$ "$GODOT_BIN" --headless --quit ; echo $?
-<paste — expect exit 0>
+$ git check-attr -a project.godot
+project.godot: text: set
+project.godot: eol: lf
+
+$ python tools/tests/test_scaffold.py
+scaffold checks: PASS
 ```
 
-## 4. First checks to run once Godot exists (carried over from CAD-FP-002)
+Deferred to CAD-FP-065/008: `java -version`, `sdkmanager --list_installed`, `adb version`.
 
-These were written but could not be executed without the engine; run them before starting CAD-FP-003
-and record the results in `/ai/handoffs/CAD-FP-002.md`:
+## 5. What the first engine session established (evidence for A.0)
 
-```bash
-"$GODOT_BIN" --headless --path . --import      # expect exit 0 and no WARNING/ERROR lines
-gdlint tools                                    # expect exit 0
-gdformat --check tools                          # expect exit 0
-python tools/loc.py HEAD~1..HEAD                # expect "impl=<n> test=<n>"
-git check-attr -a project.godot                 # expect text / eol: lf
-```
+1. **The strict-typing gate is real.** `--check-only -s <script>` exits 1 and prints
+   `Parse Error: … (Warning treated as error.)` for an untyped `var`, a discarded return value, and a
+   method call on a `Variant`. CI asserts all three as an inverted test.
+2. **`exclude_addons` does not exist in Godot 4.** Dumping `ProjectSettings.get_property_list()` shows 52
+   `debug/gdscript/*` settings; our seven warning names are all engine-declared with hint
+   `Ignore,Warn,Error`, but `exclude_addons` behaves exactly like a made-up control name. Its replacement
+   is `debug/gdscript/warnings/directory_rules`, a Dictionary defaulting to `{"res://addons": 0}`
+   (0 = Exclude, 1 = Include). `project.godot` now writes it explicitly.
+3. **Godot imports every `.csv` as a CSV Translation**, logging `WARNING: Locale '<column>' does not
+   contain any translation` for each header column. `ai/`, `docs/`, `data/csv/` and `test/fixtures/csv/`
+   carry a `.gdignore`. A CSV that must ship at runtime (`ui/strings/`, CAD-FP-047) will need an
+   `.import` with `importer="keep"` or a different extension.
+4. **`run/main_scene` cannot point at a scene that does not exist yet** — `--import` logs
+   `ERROR: Cannot open file`, which the CI gate treats as failure. CAD-FP-063 sets it.
 
-Then confirm in the editor (*Project > Project Settings > General > Debug > GDScript*) that the
-eight `debug/gdscript/warnings/*` rows from `project.godot` exist and read **Error** (A-10). Any name
-the engine does not know must be corrected in `project.godot` and in
-`docs/production/00-assumptions-register.md` A.0 — never silently dropped.
+## 6. CI parity
 
-## 4b. Windows/PowerShell equivalents
-
-`$GODOT_BIN` in Git Bash is `$env:GODOT_BIN` in PowerShell; the `tools/*.sh` scripts have `.cmd` twins
-(added by CAD-FP-003). Run the plan's commands from Git Bash unless a card says otherwise.
-
-## 5. CI parity
-
-GitHub Actions installs the same versions from pinned URLs (`docs/production/03-architecture.md` §D5.2):
-Godot 4.7.2 Linux binary + templates by SHA-256, `gdtoolkit==4.5.0`, Temurin 17. When a version changes
-here, it changes there in the same commit.
+GitHub Actions installs the same versions (`docs/production/03-architecture.md` §D5.2): Godot 4.7.2 from
+`godotengine/godot-builds` verified against the release's `SHA512-SUMS.txt`, `gdtoolkit==4.5.0`,
+Temurin 17 (from CAD-FP-065). When a version changes here it changes there in the same commit.
