@@ -1,7 +1,7 @@
 # Handoff — CAD-FP-015 — CadThreatDef resource schema
 
 ## 1. Status
-- status: TESTS_FAILING
+- status: TESTS_PASSING
 - last_updated_utc: 2026-09-08T16:01:32Z
 - agent: Codex; session: 1; takeover_from: none
 
@@ -105,5 +105,33 @@ Run dispose test resources
   Compile Error: Failed to compile depended scripts.
 	at res://test/unit/data/test_cad_threat_def.gd:0
 Abnormal exit with 105
+Run dispose test resources
+```
+
+## Green checkpoint
+- Targeted suite: 12/12 cases passed, exit 0, 179 ms; all eight parameterized bad inputs executed.
+- Exact 23 fields survive ResourceSaver/ResourceLoader CACHE_MODE_IGNORE roundtrip; enums preserved.
+- Correction: typed Array[String] collection converted once to PackedStringArray at return; strict append failure resolved.
+- Next: remaining local gates, LOC count, CI and PR.
+```text
+  res://test/unit/data/test_cad_threat_def.gd > test_valid_boundaries_and_disabled_jammer STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_valid_boundaries_and_disabled_jammer PASSED 7ms
+
+  res://test/unit/data/test_cad_threat_def.gd > test_reports_all_errors_in_field_order_without_mutation STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_reports_all_errors_in_field_order_without_mutation PASSED 10ms
+
+  res://test/unit/data/test_cad_threat_def.gd > test_tres_roundtrip STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_tres_roundtrip PASSED 25ms
+
+Statistics: 12 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans | PASSED 179ms
+
+
+Overall Summary: 12 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans |
+Executed test suites: (1/1)
+Executed test cases : (12/12)
+Total execution time: 179ms
+ Open XML Report at: file://reports/gdunit/report_4/results.xml
+Open HTML Report at: file://reports/gdunit/report_4/index.html
+Exit code: 0
 Run dispose test resources
 ```

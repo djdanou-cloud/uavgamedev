@@ -27,7 +27,7 @@ extends Resource
 
 
 func validate() -> PackedStringArray:
-	var errors: PackedStringArray = PackedStringArray()
+	var errors: Array[String] = []
 	if id == &"":
 		errors.append("id must not be empty")
 	if cost < 0:
@@ -44,4 +44,4 @@ func validate() -> PackedStringArray:
 		errors.append("apparent_rcs_m2 must be nonnegative")
 	if jam_radius_m > 0.0 and jam_strength <= 0.0:
 		errors.append("jam_strength must be positive when jam_radius_m is positive")
-	return errors
+	return PackedStringArray(errors)
