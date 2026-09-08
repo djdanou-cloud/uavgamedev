@@ -1,0 +1,30 @@
+# Godot 4
+.godot/
+/android/
+!/android/plugins/
+export_credentials.cfg
+
+# Build and test outputs
+build/
+reports/
+*.tmp
+
+# Secrets — never commit (docs/production/03-architecture.md §D5.4)
+*.keystore
+*.jks
+*.p12
+.env
+ads_secrets.tres
+
+# OS / editor
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Python tooling
+__pycache__/
+*.pyc
+.venv/

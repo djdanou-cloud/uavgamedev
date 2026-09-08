@@ -1,0 +1,30 @@
+# gdtoolkit 4.5.0 — gdlint configuration (A-09).
+# [VERIFY] on the first session with gdtoolkit installed:
+#   gdlint --dump-default-config   (writes a reference .gdlintrc)
+# then reconcile the option NAMES below with that dump, keeping these VALUES.
+# Any option name gdlint rejects must be reported in the card handoff, never guessed away.
+
+class-name: '^Cad[A-Z][A-Za-z0-9]*$'
+function-name: '^_?[a-z][a-z0-9]*(_[a-z0-9]+)*$'
+sub-class-name: '^_?[A-Z][A-Za-z0-9]*$'
+class-variable-name: '^_?[a-z][a-z0-9]*(_[a-z0-9]+)*$'
+function-argument-name: '^_?[a-z][a-z0-9]*(_[a-z0-9]+)*$'
+function-variable-name: '^[a-z][a-z0-9]*(_[a-z0-9]+)*$'
+constant-name: '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'
+signal-name: '^[a-z][a-z0-9]*(_[a-z0-9]+)*$'
+enum-name: '^[A-Z][A-Za-z0-9]*$'
+enum-element-name: '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'
+load-constant-name: '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'
+
+max-line-length: 100
+max-file-lines: 400
+function-arguments-number: 10
+
+disable:
+    - no-elif-return
+    - no-else-return
+
+excluded_directories: !!set
+    .git: null
+    .godot: null
+    addons: null

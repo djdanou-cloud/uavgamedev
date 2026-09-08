@@ -1,0 +1,26 @@
+* text=auto eol=lf
+
+*.gd text
+*.gdshader text
+*.tres text
+*.tscn text
+*.cfg text
+*.godot text
+*.csv text
+*.md text
+*.py text
+*.sh text eol=lf
+*.cmd text eol=crlf
+*.yml text
+*.svg text
+
+*.png binary
+*.jpg binary
+*.webp binary
+*.wav binary
+*.ogg binary
+*.ttf binary
+*.otf binary
+*.zip binary
+*.aab binary
+*.apk binary

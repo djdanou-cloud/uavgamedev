@@ -1,0 +1,77 @@
+; Colonel Air-defense: The Danger Wave — Godot 4.7.2 project settings.
+; Authoritative source: docs/production/03-architecture.md §D1.1.
+; Do not hand-edit values that a card owns; change the plan first, then the file.
+;
+; PENDING (CAD-FP-002 handoff): the [autoload] section is added by CAD-FP-042,
+; gui/theme/custom by CAD-FP-047, and the [input] actions must be written from the
+; Godot editor (Project > Project Settings > Input Map) and the generated text
+; committed — InputEventKey serialisation is version-specific and is not hand-written.
+
+config_version=5
+
+[application]
+
+config/name="Colonel Air-defense: The Danger Wave"
+config/version="0.1.0"
+config/description="Command the integrated air defense of a city against escalating raids of UAVs, cruise missiles and ballistic missiles."
+run/main_scene="res://scenes/app/cad_boot.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+config/quit_on_go_back=false
+run/low_processor_mode=false
+run/max_fps=0
+config/icon="res://art/icons/cad_icon.svg"
+
+[debug]
+
+; 0 = Ignore, 1 = Warn, 2 = Error (A-10). [VERIFY] every name below against
+; Godot 4.7 ProjectSettings on the first session that has the engine installed:
+; open Project Settings > General > Debug > GDScript and confirm each row reads Error.
+gdscript/warnings/untyped_declaration=2
+gdscript/warnings/inferred_declaration=1
+gdscript/warnings/unsafe_property_access=2
+gdscript/warnings/unsafe_method_access=2
+gdscript/warnings/unsafe_cast=2
+gdscript/warnings/unsafe_call_argument=2
+gdscript/warnings/return_value_discarded=2
+gdscript/warnings/exclude_addons=true
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=4
+
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=false
+
+[importer_defaults]
+
+texture={
+"compress/mode": 0,
+"mipmaps/generate": true,
+"process/premult_alpha": true,
+"svg/scale": 2.0
+}
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+pointing/emulate_mouse_from_touch=false
+pointing/android/enable_pan_and_scale_gestures=true
+pointing/android/enable_long_press_as_right_click=false
+
+[physics]
+
+common/physics_ticks_per_second=30
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+textures/canvas_textures/default_texture_filter=1
+2d/snap/snap_2d_transforms_to_pixel=false
+2d/snap/snap_2d_vertices_to_pixel=false
