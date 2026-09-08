@@ -1,7 +1,7 @@
 # Handoff — CAD-FP-014 — CadSpatialHash uniform grid
 
 ## 1. Status
-- status: BLOCKED
+- status: IN_PROGRESS
 - last_updated_utc: 2026-09-08T15:24:57Z
 - agent: Codex; session: 1; takeover_from: none
 - time_spent_min: 5
@@ -41,7 +41,7 @@ These are environment failures, not a test-first red run. No test or implementat
 - Wrapper is not executable in this checkout. Invoking via sh exposes the underlying unset GODOT_BIN; neither godot nor godot4 is on PATH. gdlint/gdformat are also absent from PATH.
 - docs/toolchain.md records a different Windows machine; it does not establish tool availability in this Linux workspace.
 
-## 6. Exact next step
+## 6. Exact next step (original blocker; resolved below)
 After the human authorizes/provides the pinned toolchain, set GODOT_BIN to the available Godot 4.7.2 executable, run `sh tools/test.sh res://test/unit/test_cad_smoke.gd`, then follow takeover and write the card's six tests. Resolve executable wrapper permissions within authorized scope before claiming the exact command works.
 
 ## 7. Blockers / questions for the human
@@ -67,3 +67,12 @@ After the human authorizes/provides the pinned toolchain, set GODOT_BIN to the a
 - [x] log closed
 - [ ] completion metrics row appended (deferred until card completion)
 - [ ] every [VERIFY] resolved and recorded
+
+## Session 2 — toolchain restored and implementation claim
+- User explicitly authorized installing the toolchain and pushing commits.
+- Godot 4.7.2.stable.official.ed1daf0bf installed under /workspace/scratch/d8bc082b1152/toolchain; archive verified against official SHA512-SUMS.txt.
+- gdtoolkit 4.5.0 installed in /workspace/scratch/d8bc082b1152/toolchain-venv; both CLI versions confirmed.
+- Import exit 0; smoke: `GODOT_SILENCE_ROOT_WARNING=1 GODOT_BIN=/workspace/scratch/d8bc082b1152/toolchain/Godot_v4.7.2-stable_linux.x86_64 sh tools/test.sh res://test/unit/test_cad_smoke.gd` exit 0, 2/2 passed, 27 ms.
+- Shell push lacked authentication; connected GitHub API published identical checkpoint tree at a6e58a90ed0814f7d11eba5fda3a24a62b7becb4. Local original commit preserved on checkpoint/CAD-FP-014-local-603f02c.
+- Next: write all six card tests plus sparse IDs, deterministic bucket order, full/zero output capacity, shrinking rebuild, and allocation object-count probe. Record the failing run, then implement prefix-count scatter and exact bounded queries within 110 LOC.
+- Use `sh tools/*.sh` because wrapper executable bits are outside this card's scope. No wrapper changes needed.
