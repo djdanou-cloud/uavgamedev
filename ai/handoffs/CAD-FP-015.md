@@ -1,7 +1,7 @@
 # Handoff — CAD-FP-015 — CadThreatDef resource schema
 
 ## 1. Status
-- status: TESTS_PASSING
+- status: BLOCKED
 - last_updated_utc: 2026-09-08T16:01:32Z
 - agent: Codex; session: 1; takeover_from: none
 
@@ -33,10 +33,10 @@ D3.1 is the exact field contract: 23 fields. B.2 has 19 roster columns; schema a
 - No CadThreatDef class exists; tests-first load should fail until implementation.
 
 ## 6. Exact next step
-Open PR, check CI for published head, finalize READY_FOR_REVIEW. No code work remains.
+PR #2 is open. Human resolves GitHub artifact finalization HTTP 403, then reruns CI. When the complete run is green, mark READY_FOR_REVIEW; no source edits required.
 
 ## 7. Blockers / questions
-- None. Toolchain installation and task-branch publishing authorized in this conversation.
+- GitHub CI Upload logs step failed at FinalizeArtifact with HTTP 403 Forbidden from intermediary. Code checks and 71 tests succeeded; no CI permission/workflow edits are in this card scope.
 - Existing shell wrappers lack executable bits; use sh. GitHub publication uses connected API because shell push lacks authentication.
 - Content validator and whole-sim benchmark are introduced in later cards; no tick-path changes here.
 
@@ -51,7 +51,8 @@ Read AGENTS.md, CLAUDE.md, standard sets, CAD-FP-015, D3.1 and B.2/B.14, then th
 - [x] source scope and LOC ceilings met: 44/60 implementation, 135/150 tests
 - [x] available local gates green
 - [x] handoff/log/metrics finalized (CI status still pending)
-- [ ] remote CI reviewed
+- [x] remote CI inspected; artifact finalization blocked by HTTP 403
+- [ ] complete CI run green
 
 ## Red checkpoint
 - Tests written before implementation; CadThreatDef is absent, suite fails to compile as expected.
@@ -177,3 +178,87 @@ Open HTML Report at: file://reports/gdunit/report_5/index.html
 Exit code: 0
 Run dispose test resources
 ```
+
+## Remote CI blocker
+- PR: https://github.com/djdanou-cloud/uavgamedev/pull/2
+- Run: https://github.com/djdanou-cloud/uavgamedev/actions/runs/34249315793
+- Tested source checkpoint: 5d27c42e8fa789e16a0f5fdf5e0b518bd5b5b77f (source identical to 9acc735).
+- Engine steps import, typecheck, purity, inverted typing probes, gdUnit4 all success. 71/71 test cases, zero errors/failures/orphans.
+- Upload transferred 84,053 bytes, then failed when finalizing the artifact. Failure is outside the source change.
+- Lint job queued at inspection; local lint and Python scaffold checks pass.
+```text
+Failed to FinalizeArtifact: Received non-retryable error: Failed request: (403) Forbidden: Error from intermediary with HTTP status code 403 "Forbidden"
+```
+- No workflow change, permission change, artifact deletion or access-control workaround attempted. Human should resolve the artifact-service denial and rerun CI. Do not weaken the upload gate merely to obtain green.
+- Code is complete and committed; overall handoff is BLOCKED until required CI is green.
+
+## Review deliverable
+## CAD-FP-015: CadThreatDef resource schema
+### Diff summary
+Threat archetype data needs a typed, validated Resource before CSV import and definition loading can be built.
+- src/data/cad_threat_def.gd: exact 23-field D3.1 schema, typed enums and eight validation rules; validation reports all violations without changing the Resource.
+- test/unit/data/test_cad_threat_def.gd: defaults, eight parameterized invalid inputs, valid boundaries, aggregate errors and all-field .tres roundtrip with CACHE_MODE_IGNORE.
+- Matching .uid files: engine-generated.
+- ai/handoffs/CAD-FP-015.md, INDEX.md, session log and metrics: tests-first evidence, correction and checks.
+- Implementation 44 / 60 LOC; tests 135 / 150 LOC. Balance data and B.14 unchanged.
+
+### Test output
+```text
+
+  res://test/unit/data/test_cad_threat_def.gd > test_validate_flags_each_rule:5 (5) STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_validate_flags_each_rule:5 (5) PASSED 6ms
+
+  res://test/unit/data/test_cad_threat_def.gd > test_validate_flags_each_rule:6 (6) STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_validate_flags_each_rule:6 (6) PASSED 7ms
+
+  res://test/unit/data/test_cad_threat_def.gd > test_validate_flags_each_rule:7 (7) STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_validate_flags_each_rule:7 (7) PASSED 6ms
+
+  res://test/unit/data/test_cad_threat_def.gd > test_valid_boundaries_and_disabled_jammer STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_valid_boundaries_and_disabled_jammer PASSED 7ms
+
+  res://test/unit/data/test_cad_threat_def.gd > test_reports_all_errors_in_field_order_without_mutation STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_reports_all_errors_in_field_order_without_mutation PASSED 10ms
+
+  res://test/unit/data/test_cad_threat_def.gd > test_tres_roundtrip STARTED
+  res://test/unit/data/test_cad_threat_def.gd > test_tres_roundtrip PASSED 25ms
+
+Statistics: 12 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans | PASSED 179ms
+
+
+Overall Summary: 12 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans |
+Executed test suites: (1/1)
+Executed test cases : (12/12)
+Total execution time: 179ms
+ Open XML Report at: file://reports/gdunit/report_4/results.xml
+Open HTML Report at: file://reports/gdunit/report_4/index.html
+Exit code: 0
+Run dispose test resources
+
+```
+Targeted suite exit 0: 12/12. Full suite exit 0: 71/71 across 9 suites, 1.353 s.
+Import is warning-free; lint/format, typecheck (19 scripts), purity, scaffold and whitespace checks pass. D3.1 field names/order match all 23 fields.
+This independent branch starts from main and excludes the unmerged CAD-FP-014 PR.
+No tick paths changed. Content validator is introduced in CAD-FP-023 and is not present yet.
+
+### Handoff status
+BLOCKED (CI artifact upload) — ai/handoffs/CAD-FP-015.md @ 5d27c42e8fa789e16a0f5fdf5e0b518bd5b5b77f; CI engine checks and 71 tests passed, but Upload logs failed with FinalizeArtifact HTTP 403 Forbidden in run 34249315793. Lint was queued at inspection.
+
+### [VERIFY] items resolved
+- All fields and non-default enum values survive saving/loading a distinct Resource: confirmed.
+- Existing gdUnit failed-load behavior returns shell 0 with abnormal 105 diagnostics; red runs are documented as failed loads, not passing tests.
+- Initial implementation hit discarded packed-array append returns; corrected using typed Array[String] and one PackedStringArray conversion. All strict warnings remain active.
+
+### Self-review checklist
+- [x] exact contract names, types, defaults and field order
+- [x] tests written first; green; eight individual rules, boundaries and serialization
+- [x] strict typing and data constraints; no forbidden patterns
+- [x] no tick-path or _process change
+- [x] no new dependency, addon, action, font or asset
+- [x] source scope and LOC ceilings met; untouched source not reformatted
+- [x] available local checks green
+- [x] handoff, closed log and metrics updated
+- [x] no unresolved card [VERIFY] items
+- [x] remote CI inspected; engine code checks pass, artifact finalization blocked by HTTP 403
+- [ ] complete CI run green
+
