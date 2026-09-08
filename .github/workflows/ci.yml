@@ -125,6 +125,10 @@ jobs:
         # error anywhere. Verified on 4.7.2 (2026-09-08): each probe exits 1 with
         # 'Parse Error: ... (Warning treated as error.)'. If a probe ever loads cleanly, this fails.
         run: |
+          # GitHub runs each step as `bash -e`, which aborts the moment a command exits non-zero -
+          # and non-zero is exactly what these probes must produce. Disable it here (verified: the
+          # step passes under plain bash locally and failed in CI purely because of -e).
+          set +e
           set -uo pipefail
           fail=0
           probe() {
@@ -150,6 +154,9 @@ jobs:
         # Exit codes are gdUnit4's own: 0 pass, 100 failures, 101 warnings (verified locally 2026-09-08).
         # --ignoreHeadlessMode is mandatory: headless is refused without it.
         run: |
+          # Same reason as the typing gate: the runner's `bash -e` would swallow the exit code we
+          # want to report explicitly.
+          set +e
           set -uo pipefail
           "$GODOT_BIN" --headless --path . -d -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd \
             --ignoreHeadlessMode -a res://test -rd reports/gdunit -c

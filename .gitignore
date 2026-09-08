@@ -8,6 +8,8 @@ export_credentials.cfg
 build/
 reports/
 *.tmp
+import.log
+probe_*.log
 
 # Secrets — never commit (docs/production/03-architecture.md §D5.4)
 *.keystore
