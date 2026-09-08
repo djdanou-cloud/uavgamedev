@@ -2,87 +2,60 @@
 
 ## 1. Status
 - status: TESTS_PASSING
-- last_updated_utc: 2026-09-08T15:24:57Z
-- agent: Codex; session: 1; takeover_from: none
-- time_spent_min: 5
+- last_updated_utc: 2026-09-08T15:38:30Z
+- agent: Codex; session: 2; takeover_from: same agent session 1
+- All local gates available at this milestone pass. Remote CI review pending.
 
 ## 2. Branch and checkpoint
 - branch: card/CAD-FP-014-spatial-hash
-- last_pushed_commit: this checkpoint; resolve with `git log -1 -- ai/handoffs/CAD-FP-014.md` after push
-- last_green_commit: none in this workspace; main base a96bc7d
-- CAD-FP-009 dependency merged: be13226, registry update 8be41e4.
+- last_pushed_commit: c5d11ce2c5c934b17fc9c253947315969441b737 — deterministic spatial grid implementation
+- last_green_commit: c5d11ce2c5c934b17fc9c253947315969441b737 (same code tested locally)
+- Original local 603f02c preserved on checkpoint/CAD-FP-014-local-603f02c. Connected GitHub API publishes matching trees with GitHub author metadata, hence different commit SHAs.
+- Dependency CAD-FP-009 confirmed merged at be13226 / 8be41e4 before claim.
 
 ## 3. Files (planned → touched)
 | path | intent | state |
 |------|--------|-------|
-| src/sim/spatial/cad_spatial_hash.gd | Preallocated counting-sort grid and bounded exact circle queries | planned |
-| test/unit/sim/test_cad_spatial_hash.gd | Six card cases plus boundary/capacity coverage | planned |
-| ai/handoffs/CAD-FP-014.md | Record plan and environment blocker | done |
-| ai/handoffs/INDEX.md | Register blocked card | done |
-| ai/logs/2026-09-08-CAD-FP-014-1.md | Close initial session | done |
+| src/sim/spatial/cad_spatial_hash.gd | Preallocated stable counting-sort grid; exact circle queries | done |
+| test/unit/sim/test_cad_spatial_hash.gd | Six card cases plus capacity, sparse IDs, output order and object-count probe | done |
+| src/sim/spatial/cad_spatial_hash.gd.uid | Engine-generated class UID | done |
+| test/unit/sim/test_cad_spatial_hash.gd.uid | Engine-generated test UID | done |
+| ai/handoffs/CAD-FP-014.md | Plan, test evidence, review and resume instructions | done |
+| ai/handoffs/INDEX.md | Card registry | done |
+| ai/logs/2026-09-08-CAD-FP-014-1.md | Original blocked session record | done |
+| ai/logs/2026-09-08-CAD-FP-014-2.md | Implementation session record | done |
+| ai/metrics/metrics.csv | Card delivery metrics | done |
 
-Ordered plan: write card tests first; record executable red run; implement grid within 110 LOC; run targeted suite, typing, lint, purity and full suite; resolve tick allocation and validation gates before review.
+Plan recorded and pushed before edits: tests → red run checkpoint → implementation → targeted test checkpoint → all available gates. Implementation 81 / 110 LOC; tests 107 / 150 LOC (`python tools/loc.py main..HEAD`). No existing source reformatted.
 
 ## 4. Tests
-- command: `tools/test.sh res://test/unit/sim/test_cad_spatial_hash.gd`
-- last_exit_code: 126
-- failing_tests: none executed
-```text
-/bin/bash: line 1: tools/test.sh: Permission denied
+Environment for commands:
+```sh
+export GODOT_BIN=/workspace/scratch/d8bc082b1152/toolchain/Godot_v4.7.2-stable_linux.x86_64
+export GODOT_SILENCE_ROOT_WARNING=1
+export PATH=/workspace/scratch/d8bc082b1152/toolchain-venv/bin:$PATH
 ```
-- Diagnostic using the existing POSIX wrapper: `sh tools/test.sh res://test/unit/sim/test_cad_spatial_hash.gd`
-- diagnostic_exit_code: 2
-```text
-tools/test.sh: 5: GODOT_BIN: set GODOT_BIN to the Godot 4.7.2 console binary (docs/toolchain.md)
-```
-These are environment failures, not a test-first red run. No test or implementation files were created.
+Use `sh tools/*.sh`: existing wrapper execute bits are absent in this Linux checkout and outside card scope.
 
-## 5. Hypotheses
-- Wrapper is not executable in this checkout. Invoking via sh exposes the underlying unset GODOT_BIN; neither godot nor godot4 is on PATH. gdlint/gdformat are also absent from PATH.
-- docs/toolchain.md records a different Windows machine; it does not establish tool availability in this Linux workspace.
+| command | exit | evidence |
+|---------|------|----------|
+| `"$GODOT_BIN" --headless --path . --import` | 0 | no ERROR or WARNING lines in final import |
+| `sh tools/lint.sh` | 0 | no problems; 20 files unchanged |
+| `sh tools/typecheck.sh` | 0 | OK 19 scripts |
+| `sh tools/purity.sh` | 0 | OK purity res://src/sim |
+| `sh tools/test.sh res://test/unit/sim/test_cad_spatial_hash.gd` | 0 | 7/7, no errors/failures/orphans, 1.138 s |
+| `sh tools/test.sh` | 0 | 66/66 across 9 suites, no errors/failures/orphans, 2.150 s |
+| `python tools/tests/test_scaffold.py` | 0 | scaffold checks PASS |
+| `git diff --check main..HEAD` | 0 | clean |
 
-## 6. Exact next step (original blocker; resolved below)
-After the human authorizes/provides the pinned toolchain, set GODOT_BIN to the available Godot 4.7.2 executable, run `sh tools/test.sh res://test/unit/test_cad_smoke.gd`, then follow takeover and write the card's six tests. Resolve executable wrapper permissions within authorized scope before claiming the exact command works.
+- failing_tests: none
+- Brute-force 500 points × 50 circles: 15 ms (targeted XML report).
+- Tick probe: 512 items × 1,800 rebuild/query iterations; object_count_delta = 0 asserted. This detects Godot object growth, not every native allocation; source audit confirms preallocated buffers, scalar inner-loop math and no hot-path constructors/resizing.
+- tools/validate.sh (CAD-FP-023) and tools/bench.sh (CAD-FP-041) do not exist yet. No content or whole-game benchmark claim is made. The card's allocation probe is implemented in its own suite.
 
-## 7. Blockers / questions for the human
-- AGENTS.md §7.10 and STD-ABANDON require BLOCKED when the test command cannot run.
-- AGENTS.md §5.1 requires explicit permission before installing dependencies; docs/toolchain.md labels install commands human-only.
-- May the pinned Godot 4.7.2 and gdtoolkit 4.5.0 toolchain be installed in this workspace?
-- tools/bench.sh and tools/validate.sh are not present yet; later cards introduce them. Allocation evidence for this tick-path card still needs an executable probe.
-
-## 8. Resume instructions for a successor
-- Read AGENTS.md, CLAUDE.md, this handoff, §7.2 standard sets, CAD-FP-014 and docs/toolchain.md.
-- Do not redo task selection or dependency confirmation; no code has been implemented.
-- [VERIFY] Packed array in-place mutation and brute-force runtime remain untested.
-- Resume from this branch; record takeover and any environment discrepancy.
-
-## 9. Self-review checklist
-- [ ] contract implemented exactly
-- [ ] tests first, now green; edge/capacity/determinism cases present
-- [x] STD constraints met for documentation checkpoint; no code edited
-- [ ] no allocation in tick paths / _process verified
-- [x] no new dependency / asset introduced
-- [x] implementation diff within Scope and LOC ceiling (0 implementation / 0 test LOC)
-- [ ] lint, typecheck, purity, tests, validation green
-- [x] log closed
-- [ ] completion metrics row appended (deferred until card completion)
-- [ ] every [VERIFY] resolved and recorded
-
-## Session 2 — toolchain restored and implementation claim
-- User explicitly authorized installing the toolchain and pushing commits.
-- Godot 4.7.2.stable.official.ed1daf0bf installed under /workspace/scratch/d8bc082b1152/toolchain; archive verified against official SHA512-SUMS.txt.
-- gdtoolkit 4.5.0 installed in /workspace/scratch/d8bc082b1152/toolchain-venv; both CLI versions confirmed.
-- Import exit 0; smoke: `GODOT_SILENCE_ROOT_WARNING=1 GODOT_BIN=/workspace/scratch/d8bc082b1152/toolchain/Godot_v4.7.2-stable_linux.x86_64 sh tools/test.sh res://test/unit/test_cad_smoke.gd` exit 0, 2/2 passed, 27 ms.
-- Shell push lacked authentication; connected GitHub API published identical checkpoint tree at a6e58a90ed0814f7d11eba5fda3a24a62b7becb4. Local original commit preserved on checkpoint/CAD-FP-014-local-603f02c.
-- Next: write all six card tests plus sparse IDs, deterministic bucket order, full/zero output capacity, shrinking rebuild, and allocation object-count probe. Record the failing run, then implement prefix-count scatter and exact bounded queries within 110 LOC.
-- Use `sh tools/*.sh` because wrapper executable bits are outside this card's scope. No wrapper changes needed.
-
-## Tests-first checkpoint
-- Seven tests written before implementation; all card cases plus capacity/order/shrinking/allocation coverage.
-- Command: `GODOT_SILENCE_ROOT_WARNING=1 GODOT_BIN=/workspace/scratch/d8bc082b1152/toolchain/Godot_v4.7.2-stable_linux.x86_64 sh tools/test.sh res://test/unit/sim/test_cad_spatial_hash.gd`
-- Missing CadSpatialHash prevents suite compilation as expected. Runner prints abnormal exit 105 but shell returns 0; this is not a passing test run. Typecheck/import gates remain necessary.
-- Hypothesis: all unresolved type/method diagnostics stem from the not-yet-created CadSpatialHash.
-- Next: implement the card interface, import to register the class, rerun seven tests.
+### Tests-first red evidence
+Tests committed locally at 11e94d2 and published at 1712456e057989dbcbf782c16c72ca4de68b78ec before implementation.
+Missing CadSpatialHash caused unresolved-type compilation failures. gdUnit4 printed abnormal 105 while the shell returned 0: this is a failed suite load, never recorded as passing tests.
 ```text
   Parse Error: The method "new()" is not present on the inferred type "Variant" (but may be present on a subtype). (Warning treated as error.)
 	at res://test/unit/sim/test_cad_spatial_hash.gd:94
@@ -105,15 +78,18 @@ After the human authorizes/provides the pinned toolchain, set GODOT_BIN to the a
 Abnormal exit with 105
 Run dispose test resources
 ```
-
-## Implementation checkpoint
-- All 7 spatial-grid tests pass on first implementation run, exit 0, 1.138 s.
-- Exact circle results match brute force for 500 seeded points and 50 circles.
-- [VERIFY] Packed output writes are visible to callers without resizing: confirmed.
-- Full-capacity 512-point rebuild/query repeated 1,800 times: object_count_delta = 0 (asserted in passing test). Object-count measurement does not prove absence of every native allocation; source audit also required.
-- Stable scatter uses input-slot-indexed scratch cells, so sparse entity IDs work with a small max_items capacity. Truncated output returns written count without resize.
-- Next: lint, typecheck, purity, full suite, LOC and final review.
+### Latest targeted output
 ```text
+
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_out_of_bounds_points_clamped_and_found STARTED
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_out_of_bounds_points_clamped_and_found PASSED 8ms
+
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_zero_radius_returns_coincident_only STARTED
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_zero_radius_returns_coincident_only PASSED 6ms
+
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_out_written_in_place_no_resize STARTED
+  res://test/unit/sim/test_cad_spatial_hash.gd > test_out_written_in_place_no_resize PASSED 6ms
+
   res://test/unit/sim/test_cad_spatial_hash.gd > test_rebuild_twice_same_order STARTED
   res://test/unit/sim/test_cad_spatial_hash.gd > test_rebuild_twice_same_order PASSED 7ms
 
@@ -135,3 +111,53 @@ Open HTML Report at: file://reports/gdunit/report_2/index.html
 Exit code: 0
 Run dispose test resources
 ```
+### Full-suite output
+```text
+  res://test/unit/test_cad_smoke.gd > test_smoke_int_math STARTED
+  res://test/unit/test_cad_smoke.gd > test_smoke_int_math PASSED 9ms
+
+Statistics: 2 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans | PASSED 36ms
+
+
+Overall Summary: 66 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans |
+Executed test suites: (9/9)
+Executed test cases : (66/66)
+Total execution time: 2s 150ms
+ Open XML Report at: file://reports/gdunit/report_3/results.xml
+Open HTML Report at: file://reports/gdunit/report_3/index.html
+Exit code: 0
+Run dispose test resources
+```
+
+## 5. Hypotheses
+- No remaining test failures. Original unresolved-type diagnostics were removed by implementing the missing class.
+- gdUnit's suite-load exit mismatch is outside this card; import/typecheck plus explicit executed-test counts prevent treating it as green.
+
+## 6. Exact next step
+Open the PR, inspect CI for the published commit, record results and final review status. Human squash-merges after reviewing the stable scatter and boundary behavior.
+
+## 7. Blockers / questions for the human
+- No local toolchain blocker remains. User explicitly authorized installation and branch publishing.
+- Godot 4.7.2.stable.official.ed1daf0bf archive verified against the official SHA512-SUMS.txt. gdlint/gdformat both report 4.5.0.
+- Native shell push has no authentication. Connected GitHub integration has verified push permission and published each checkpoint successfully.
+- Future-milestone content/whole-sim benchmark tools unavailable as noted above; do not fabricate their results.
+
+## 8. Resume instructions
+- Read AGENTS.md, CLAUDE.md, this handoff, the CAD-FP-014 card and two new source/test files.
+- Do not restart implementation or repeat green local tests without a new defect or code change.
+- [VERIFY] Packed array writes in query arguments affect the caller and do not resize: confirmed by test.
+- Stable bucket order follows input order; cells are visited in ascending row-major order. Sparse IDs index xs/ys; scratch is indexed by input slot.
+- Query buffer exhaustion returns written count, preserving deterministic prefix. Empty output returns zero. Out-of-world positions remain searchable through clamped cells and exact distance filtering.
+
+## 9. Self-review checklist
+- [x] contract implemented exactly
+- [x] tests first with failed-load red evidence; now 7/7 green, edge/capacity/determinism coverage
+- [x] strict typing and sim purity gates green; no forbidden patterns
+- [x] preallocated hot paths and scalar inner-loop math; object_count_delta = 0
+- [x] toolchain dependency installation explicitly authorized; no new project addon or asset
+- [x] source diff within Scope; LOC 81/110 implementation and 107/150 tests
+- [x] import, lint, typecheck, purity and full tests green locally
+- [ ] content validation / whole-sim bench (tools arrive in later cards)
+- [x] log closed; metrics row appended
+- [x] Packed-array [VERIFY] resolved and recorded
+- [ ] remote CI reviewed

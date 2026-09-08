@@ -15,7 +15,7 @@ One row per card that has ever been claimed. The human updates status to MERGED/
 | CAD-FP-012 | MERGED | merged to main | 2026-09-08T10:20Z | Claude Opus 5 | 7ea6b03 | CadThreatStore; 9/9 first try, suite 45/45, CI green; LOC 125/120 to be resolved by CAD-FP-012A |
 | CAD-FP-012A | MERGED | merged to main | 2026-09-08T11:00Z | Claude Opus 5 | f624b9f | CadPacked extracted; threat store 125->113; 49/49 untouched tests; CI green |
 | CAD-FP-013 | MERGED | merged to main | 2026-09-08T11:45Z | Claude Opus 5 | 969a3d8 | CadInterceptorStore; 10/10 first try, suite 59/59, CI green; LOC 93/90 (wrapped signature) |
-| CAD-FP-014 | IN_PROGRESS | card/CAD-FP-014-spatial-hash | 2026-09-08T15:24:57Z | Codex | see branch HEAD | Toolchain installed; smoke 2/2 green; tests-first implementation next |
+| CAD-FP-014 | TESTS_PASSING | card/CAD-FP-014-spatial-hash | 2026-09-08T15:38:30Z | Codex | c5d11ce | Local 66/66; 81 impl LOC; remote CI review pending |
 
 Stage 2 of CAD-FP-005 (renaming the `engine` steps into D5.2's `test` job, plus the content,
 bench and android-debug jobs) stays open and is carried by CAD-FP-023, CAD-FP-041 and CAD-FP-065.
