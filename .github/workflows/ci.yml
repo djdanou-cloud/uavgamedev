@@ -7,7 +7,10 @@ name: ci
 
 on:
   push:
-    branches: [main]
+    # Card branches are included because STD-DOD requires CI green on the branch before review, and
+    # this project has no PR automation - the human merges locally. The concurrency group below
+    # cancels superseded runs so a series of wip pushes costs one run, not one per commit.
+    branches: [main, "card/**"]
   pull_request:
 
 permissions:
