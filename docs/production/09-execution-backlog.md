@@ -360,6 +360,34 @@ Conventions used by every card:
 
 ---
 
+### CAD-FP-012A — CadPacked sizing helpers
+- **ID:** CAD-FP-012A **Title:** CadPacked sizing helpers
+- **Milestone:** FP **Workstream:** ENG-SIM **Owner:** agent
+- **Goal:** One typed place to allocate a zero-filled Packed array, so the `resize()`-returns-`Error` pattern stops being copied into every store.
+- **Origin:** raised by CAD-FP-012 finding 2 and approved by the human on 2026-09-08. Inserted between existing cards, so it carries a letter suffix rather than renumbering everything after it.
+- **Scope:** create `src/sim/cad_packed.gd`, `test/unit/sim/test_cad_packed.gd`; modify `src/sim/cad_event_log.gd`, `src/sim/cad_rng.gd`, `src/sim/store/cad_threat_store.gd` to call it and drop their private helpers. LOC ceiling: ≤ 40 new LOC (the card is a net reduction across the sim layer).
+- **Interface contract:**
+  ```gdscript
+  class_name CadPacked
+  extends RefCounted
+  static func ints(size: int) -> PackedInt32Array      # zero-filled, exactly `size` long
+  static func longs(size: int) -> PackedInt64Array
+  static func floats(size: int) -> PackedFloat32Array
+  static func bytes(size: int) -> PackedByteArray
+  ```
+  Each asserts the resize succeeded rather than discarding the `Error` (A-10 forbids discarding it). `size` of 0 yields an empty array; a negative `size` is a programming error and trips the assert.
+- **Test-first:** `test/unit/sim/test_cad_packed.gd`; Given a requested size When each constructor is called Then the array is exactly that long and zero-filled; Given size 0 Then the array is empty; Given an existing store When it is built Then its buffers are still exactly capacity long (regression against the three call sites). Run: `tools/test.sh res://test/unit/sim/test_cad_packed.gd`
+- **Constraints:** STD-TYPING, STD-SIM. **No behaviour change**: the three modified files keep identical public APIs and their existing suites must pass untouched. Allocation happens at construction only — none of these are tick-path functions.
+- **Handoff & takeover artifacts:** `/ai/handoffs/CAD-FP-012A.md`; STD-HANDOFF + the before/after LOC of each modified file.
+- **Definition of Done:** STD-DOD; plus `src/sim/store/cad_threat_store.gd` back under its 120-LOC ceiling, and the full suite green with no test edited.
+- **Verification gates:** human checks that no call site changed behaviour and that the three private helpers are gone rather than merely unused.
+- **Dependencies:** CAD-FP-011, CAD-FP-012.
+- **Effort:** 1 agent session × 8 human review minutes.
+- **Abandon criteria:** STD-ABANDON; specific: if extracting the helpers does not bring `cad_threat_store.gd` under 120 LOC, stop and report rather than trimming the store's comments to fit.
+- **Prompt template:** /ai/prompts/implement-from-card.md
+
+---
+
 ### CAD-FP-013 — CadInterceptorStore (struct-of-arrays)
 - **ID:** CAD-FP-013 **Title:** CadInterceptorStore (struct-of-arrays)
 - **Milestone:** FP **Workstream:** ENG-SIM **Owner:** agent
@@ -2084,6 +2112,7 @@ Checks applied to this file at authoring time; the appendix prompt re-runs them 
 | check | result |
 |-------|--------|
 | every task card ≤ 120 implementation LOC with a failing-test-first specification | 69/69 (human cards carry verification commands as their test) |
+| card ids are unique and dependency-ordered; cards inserted after planning carry a letter suffix (CAD-FP-012A) so existing ids and their dependencies never shift |
 | every Dependencies entry resolves to an existing card id in I1 | verified by `tools/backlog_check.py` (to be added by the first VS expansion card; until then by manual grep) |
 | every design table maps to a Resource schema (B.14) | 12/12 |
 | every performance target has a measuring test or procedure (D6) | 13/13 |
